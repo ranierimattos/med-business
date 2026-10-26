@@ -1,6 +1,6 @@
 # HANDOFF — Simulador Tributário Médico PJ
 
-Documento de passagem para continuar o trabalho em uma nova sessão. Atualizado em 26/10/2026.
+Documento de passagem para continuar o trabalho em uma nova sessão. Atualizado em 26/10/2026 (relatório para PDF).
 
 ## 1. Objetivo do trabalho
 
@@ -8,19 +8,20 @@ Aplicação web em **um único arquivo HTML**, offline e em português, para pla
 
 O pedido original foi um "prompt mestre" extenso, com 24 seções (cadastro, receitas, despesas, tributos, folha, fator "r", Simples, comparação de regimes, IRPF, dividendos, otimização, sensibilidade, interface, relatório, testes, privacidade, fontes, alertas e entrega). Esta primeira versão cobre todas as seções.
 
-**Fase atual:** redesenho da interface **implementado** no app real. O canvas foi aprovado pelo usuário em 26/10/2026; as 11 abas viraram 3 áreas (Resultado, Dados, Relatório) + menu Arquivo + Tabelas legais em painel lateral, sem mudança de cálculo no motor.
+**Fase atual:** novo layout do **relatório para PDF** em teste na branch `report-design`, **aguardando a aprovação do usuário**. Se aprovado, abrir PR para `main`; se não, a branch fica parada. O redesenho da interface (3 áreas: Resultado, Dados, Relatório + menu Arquivo + Tabelas legais) já está em `main` (PR #3).
 
 ## 2. Estado atual
 
 - Repositório: `ranierimattos/med-business` (privado). Branch padrão: `main`.
-- PR #1 (o simulador completo) **mesclada** em `main`. A PR #2 foi uma mesclagem de `main` de volta para a branch antiga, sem alterar arquivos. A branch antiga foi apagada pelo usuário.
-- Branch de trabalho: `ccr-9bf84731-bxdfac` (a partir de `main`), com o redesenho commitado e enviado. **Sem PR aberta** (abrir só quando o usuário pedir).
-- Testes: `node --test tests/motor.test.js` → 41/41; `node --test tests/ui.test.js` → 1/1 (Playwright + Chromium, 15 verificações da nova interface).
+- PR #1 (o simulador completo) e PR #3 (redesenho da interface, branch `ccr-9bf84731-bxdfac`) **mescladas** em `main`. A PR #2 foi uma mesclagem de `main` de volta para a branch antiga, sem alterar arquivos.
+- Branch `report-design` (a partir de `main` depois da PR #3): novo relatório pensado para PDF. **Sem PR aberta**: depende da aprovação do usuário. O PDF de exemplo está em `docs/relatorio-exemplo.pdf`.
+- Testes: `node --test tests/motor.test.js` → 41/41; `node --test tests/ui.test.js` → 1/1 (Playwright + Chromium; inclui as verificações de impressão e do PDF).
 - Links:
   - PR #1: https://github.com/ranierimattos/med-business/pull/1
   - App publicado como página privada (variante de hospedagem, `dist/artefato/`): https://claude.ai/artifact/7k7yCKQSfmWBm7yKNfbW7d
   - Canvas da nova interface (**aprovado**): https://claude.ai/artifact/9DN79EAVXX75UdHQKYpjEE
-  - Versão de teste pública (GitHub Pages): repositório `ranierimattos/simulador-medico-pj`, a ser criado pelo usuário (a integração do GitHub da sessão não pode criar repositórios). Endereço previsto: https://ranierimattos.github.io/simulador-medico-pj/
+  - PR #3: https://github.com/ranierimattos/med-business/pull/3
+  - Versão de teste pública (GitHub Pages), publicada a partir de `main` com `scripts/publicar-demo.sh`: https://ranierimattos.github.io/simulador-medico-pj/ (repositório `ranierimattos/simulador-medico-pj`). O usuário pediu para **não** publicar a branch `report-design` lá.
 
 ## 3. O que já foi feito
 
@@ -62,6 +63,17 @@ O pedido original foi um "prompt mestre" extenso, com 24 seções (cadastro, rec
 - `src/motor.js`: só cinco textos de alerta que citavam abas antigas (nenhuma regra mudou).
 - `tests/ui.test.js` reescrito; `scripts/capturas.js` gera também `docs/dados-etapas.png`; README (seção "Como usar" e testes) atualizado.
 
+**Relatório para PDF (branch `report-design`, aguardando aprovação)**
+- Motivo: o PDF gerado pelo botão Imprimir cortava a tabela de comparação e o texto das limitações na margem direita (a tabela de 13 colunas alargava a página), deixava um título sozinho no fim da página e não tinha número de página.
+- `RENDER_AREA.relatorio` em `src/ui.js` monta 3 `.folha`; cada uma começa uma página na impressão:
+  1. **Resumo executivo** (cabe em 1 página): cabeçalho com empresa, ano, data, status dos parâmetros e selo de dados fictícios; economia projetada e recomendação; tabela Atual × Recomendado × Diferença; gráfico de tributos por mês (atual × recomendado); próximos passos.
+  2. **Plano mês a mês** (valores sem "R$" para caber em 180 mm) e gráfico do fator "r" com a linha de 28%.
+  3. **Cenários comparados** (9 colunas), **plano de ação** em cartões (economia, custo adicional, quando faz efeito; nota de que o custo adicional já está descontado) e **premissas e pontos de revisão** (alertas, dados ausentes, premissas).
+- `src/estilos.css`: `@page` A4 (margens 16/15/17 mm); na impressão, tokens claros mesmo no tema escuro, `print-color-adjust: exact`, fluxo em bloco (o `break-after: avoid` não funciona bem dentro de grid) e quebras controladas. A regra de impressão esconde `#conteudo > .area`: a antiga `.area` também escondia a chave colorida das legendas (`.chave.area`).
+- Cabeçalho e rodapé de cada página (empresa, data, aviso, "Página X de Y") vêm de margin boxes do `@page`, injetados em `<style id="estilo-pagina">` por `atualizarEstiloPagina()`. A 1ª página não repete o cabeçalho. Chrome 131+ suporta margin boxes; Firefox ignora.
+- `beforeprint`/`afterprint`: Ctrl+P em qualquer área monta o relatório fora da tela e troca `document.title` para "Relatório tributário <ano> - <empresa>" (nome sugerido do PDF). O botão Imprimir não navega mais para o relatório.
+- Nenhum cálculo mudou; o relatório usa os mesmos campos da análise (`atual`, `recomendado`, `cenarios`, `planoAcao`, `alertas`, `qualidade`).
+
 **Resultado do exemplo fictício:** Simples, com pró-labore concentrado em jan–jun (R$ 12.871 a R$ 21.621) e mínimo depois. Junho a dezembro passam ao Anexo III, com economia projetada de **R$ 9.301,68/ano** (R$ 96.602,94 contra R$ 105.904,62).
 
 ## 4. Decisões tomadas e por quê
@@ -96,17 +108,17 @@ src/otimizador.js      executar(estado) → análise completa
 src/exportacao.js      CSV
 src/exemplo.js         dados fictícios de demonstração
 src/graficos.js        gráficos SVG (linhas, barras, tornado)
-src/ui.js              interface: Resultado, Dados (5 etapas), Relatório, Tabelas legais, Início rápido
+src/ui.js              interface: Resultado, Dados (5 etapas), Relatório (folhas A4), Tabelas legais, Início rápido
 src/estilos.css        estilos (tokens claro/escuro, impressão)
 src/template.html      esqueleto HTML
 scripts/build.js       gera dist/
-scripts/relatorio-exemplo.js, scripts/capturas.js
+scripts/relatorio-exemplo.js, scripts/capturas.js (imagens e docs/relatorio-exemplo.pdf)
 scripts/publicar-demo.sh  publica dist/ no repositório público de teste (index.html + demo/)
 demo/                  README e workflow do GitHub Pages do repositório público de teste
 tests/motor.test.js    41 testes do motor/otimizador
 tests/ui.test.js       teste de interface da nova navegação (Playwright)
 dist/                  arquivos gerados (versionados)
-docs/                  relatório do exemplo, CSV, imagens (painel-geral, grafico-otimizacao, dados-etapas)
+docs/                  relatório do exemplo (.md e .pdf), CSV, imagens (painel-geral, grafico-otimizacao, dados-etapas)
 ```
 
 Comandos:
@@ -136,15 +148,14 @@ Canvas de design (lido com a ferramenta Artifact, ação `read`, no link da seç
 
 ## 7. Próximos passos
 
-1. Receber o retorno do usuário sobre o app redesenhado (página hospedada ou `dist/simulador-tributario-medico-pj.html`) e ajustar.
-2. Versão de teste no GitHub Pages: o usuário cria o repositório público vazio `ranierimattos/simulador-medico-pj` (sem README) e ativa Settings → Pages → Source: GitHub Actions. Depois, alguém com acesso a ele roda `scripts/publicar-demo.sh <clone>`; numa sessão do Claude, anexar o repositório com push e rodar o script. Se o workflow avisar que o Pages não está configurado, ativar e rodar de novo em Actions → Run workflow.
-3. Abrir PR de `ccr-9bf84731-bxdfac` para `main` quando o usuário pedir.
-4. Conferir os parâmetros legais em fonte oficial quando houver acesso (seção 6, item 1).
-5. Ideias não feitas: navegação por setas entre as sub-seções (hoje só Tab); barra fixa com a economia no celular enquanto se edita os Dados; recálculo em Web Worker se a análise ficar mais lenta.
+1. Receber o parecer do usuário sobre o relatório em PDF (`docs/relatorio-exemplo.pdf` na branch `report-design`). Aprovado: abrir PR de `report-design` para `main`. Não aprovado: ajustar na mesma branch ou deixá-la parada.
+2. Depois de mesclar em `main`, atualizar a versão de teste pública com `scripts/publicar-demo.sh <clone do simulador-medico-pj>` (só quando o usuário pedir).
+3. Conferir os parâmetros legais em fonte oficial quando houver acesso (seção 6, item 1).
+4. Ideias não feitas: navegação por setas entre as sub-seções (hoje só Tab); barra fixa com a economia no celular enquanto se edita os Dados; recálculo em Web Worker se a análise ficar mais lenta.
 
 ## 8. Convenções
 
 - Interface, textos, comentários e documentação em português do Brasil.
 - Commits terminam com as linhas de atribuição indicadas pela sessão; não incluir identificador de modelo em commits, PRs ou código.
-- Commit e push na branch de trabalho ao concluir uma entrega; PR só quando pedido.
+- Commit e push na branch de trabalho ao concluir uma entrega; PR só quando pedido. Experimentos de layout ficam numa branch própria (ex.: `report-design`) até o usuário aprovar.
 - O usuário clonou o repositório no computador e usa a branch `main`.

@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /*
- * Gera imagens de documentação a partir do arquivo único (requer Playwright).
+ * Gera imagens de documentação e o PDF do relatório a partir do arquivo único (requer Playwright).
  *   node scripts/build.js && node scripts/capturas.js
  */
 'use strict';
@@ -25,6 +25,11 @@ const raiz = path.join(__dirname, '..');
   await p.click('.etapa-botao[data-etapa="2"]');
   await p.waitForTimeout(300);
   await p.screenshot({ path: path.join(raiz, 'docs', 'dados-etapas.png'), clip: { x: 0, y: 0, width: 1280, height: 900 } });
+  // PDF do relatório, igual ao "Salvar como PDF" do Chrome (A4, margens e rodapé definidos no CSS)
+  await p.click('.topo a[data-area="relatorio"]');
+  await p.waitForSelector('#rel-grafico-tributos svg');
+  await p.evaluate(() => window.dispatchEvent(new Event('beforeprint')));
+  await p.pdf({ path: path.join(raiz, 'docs', 'relatorio-exemplo.pdf'), preferCSSPageSize: true });
   await b.close();
-  console.log('Capturas geradas em docs/');
+  console.log('Capturas e relatorio-exemplo.pdf gerados em docs/');
 })();
