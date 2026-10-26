@@ -63,7 +63,10 @@ node --test tests/motor.test.js  # testes do motor e do otimizador
 node --test tests/ui.test.js     # teste de interface (Playwright + Chromium)
 node scripts/relatorio-exemplo.js
 node scripts/capturas.js         # imagens de docs/ (Playwright)
+scripts/publicar-demo.sh ../simulador-medico-pj   # publica a versão de teste
 ```
+
+**Versão de teste pública.** O repositório público `ranierimattos/simulador-medico-pj` guarda só o arquivo único (`index.html`), um README e o workflow do GitHub Pages, que ficam em `demo/`. O código-fonte continua neste repositório. Para publicar ou atualizar: clone o repositório público ao lado deste e rode `scripts/publicar-demo.sh` com o caminho do clone; o script gera o arquivo, copia, faz commit e push na `main`, e o workflow publica em https://ranierimattos.github.io/simulador-medico-pj/. O Pages precisa estar ativado lá em Settings → Pages → Source: GitHub Actions.
 
 ---
 

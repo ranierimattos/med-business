@@ -1,0 +1,57 @@
+# Publica o index.html no GitHub Pages a cada push na branch main.
+# Requer Settings → Pages → Source: GitHub Actions.
+name: Publicar no GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  verificar:
+    name: Verificar o GitHub Pages
+    runs-on: ubuntu-latest
+    outputs:
+      ativo: ${{ steps.pages.outputs.ativo }}
+    steps:
+      - id: pages
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          tipo=$(gh api "repos/${GITHUB_REPOSITORY}/pages" --jq .build_type 2>/dev/null || true)
+          if [ "$tipo" = "workflow" ]; then
+            echo "ativo=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "ativo=false" >> "$GITHUB_OUTPUT"
+            echo "::warning title=GitHub Pages não configurado::Em Settings → Pages, escolha Source: GitHub Actions e rode este workflow de novo em Actions → Publicar no GitHub Pages → Run workflow."
+          fi
+
+  publicar:
+    name: Publicar
+    needs: verificar
+    if: needs.verificar.outputs.ativo == 'true'
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Montar o site
+        run: |
+          test -f index.html
+          mkdir -p _site
+          cp index.html _site/index.html
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+      - id: deployment
+        uses: actions/deploy-pages@v4

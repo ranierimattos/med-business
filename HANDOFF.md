@@ -20,6 +20,7 @@ O pedido original foi um "prompt mestre" extenso, com 24 seções (cadastro, rec
   - PR #1: https://github.com/ranierimattos/med-business/pull/1
   - App publicado como página privada (variante de hospedagem, `dist/artefato/`): https://claude.ai/artifact/7k7yCKQSfmWBm7yKNfbW7d
   - Canvas da nova interface (**aprovado**): https://claude.ai/artifact/9DN79EAVXX75UdHQKYpjEE
+  - Versão de teste pública (GitHub Pages): repositório `ranierimattos/simulador-medico-pj`, a ser criado pelo usuário (a integração do GitHub da sessão não pode criar repositórios). Endereço previsto: https://ranierimattos.github.io/simulador-medico-pj/
 
 ## 3. O que já foi feito
 
@@ -100,6 +101,8 @@ src/estilos.css        estilos (tokens claro/escuro, impressão)
 src/template.html      esqueleto HTML
 scripts/build.js       gera dist/
 scripts/relatorio-exemplo.js, scripts/capturas.js
+scripts/publicar-demo.sh  publica dist/ no repositório público de teste (index.html + demo/)
+demo/                  README e workflow do GitHub Pages do repositório público de teste
 tests/motor.test.js    41 testes do motor/otimizador
 tests/ui.test.js       teste de interface da nova navegação (Playwright)
 dist/                  arquivos gerados (versionados)
@@ -134,9 +137,10 @@ Canvas de design (lido com a ferramenta Artifact, ação `read`, no link da seç
 ## 7. Próximos passos
 
 1. Receber o retorno do usuário sobre o app redesenhado (página hospedada ou `dist/simulador-tributario-medico-pj.html`) e ajustar.
-2. Abrir PR de `ccr-9bf84731-bxdfac` para `main` quando o usuário pedir.
-3. Conferir os parâmetros legais em fonte oficial quando houver acesso (seção 6, item 1).
-4. Ideias não feitas: navegação por setas entre as sub-seções (hoje só Tab); barra fixa com a economia no celular enquanto se edita os Dados; recálculo em Web Worker se a análise ficar mais lenta.
+2. Versão de teste no GitHub Pages: o usuário cria o repositório público vazio `ranierimattos/simulador-medico-pj` (sem README) e ativa Settings → Pages → Source: GitHub Actions. Depois, alguém com acesso a ele roda `scripts/publicar-demo.sh <clone>`; numa sessão do Claude, anexar o repositório com push e rodar o script. Se o workflow avisar que o Pages não está configurado, ativar e rodar de novo em Actions → Run workflow.
+3. Abrir PR de `ccr-9bf84731-bxdfac` para `main` quando o usuário pedir.
+4. Conferir os parâmetros legais em fonte oficial quando houver acesso (seção 6, item 1).
+5. Ideias não feitas: navegação por setas entre as sub-seções (hoje só Tab); barra fixa com a economia no celular enquanto se edita os Dados; recálculo em Web Worker se a análise ficar mais lenta.
 
 ## 8. Convenções
 
