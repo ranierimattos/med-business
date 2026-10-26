@@ -13,24 +13,31 @@ Aplicação web em **um único arquivo HTML** para planejamento financeiro e oti
 
 ## 1. Como usar
 
-1. Abra `dist/simulador-tributario-medico-pj.html` em um navegador moderno (Chrome, Edge, Firefox ou Safari, no computador ou no celular). Na primeira abertura, carrega um **exemplo fictício** identificado como tal e executa a análise.
-2. Substitua os dados pelos seus, aba por aba. Campos vazios são permitidos; cada aba explica o efeito da ausência e o painel mostra a **qualidade dos dados**.
+1. Abra `dist/simulador-tributario-medico-pj.html` em um navegador moderno (Chrome, Edge, Firefox ou Safari, no computador ou no celular).
+2. Na primeira abertura aparece o **Início rápido**: 4 perguntas (receita média por mês, pró-labore atual, salários de empregados e regime atual) com uma prévia ao vivo do custo tributário de hoje. **Ver análise** cria o cadastro com essas respostas; **Preencher tudo em etapas** leva aos Dados; **Abrir o exemplo fictício** mostra uma clínica inventada, identificada como exemplo. O Início rápido pode ser reaberto pelo menu **Arquivo**.
+3. O resultado é **recalculado automaticamente** cerca de um segundo depois de cada alteração. Enquanto isso, o topo mostra "Resultado desatualizado" ou "Recalculando…".
 
-| Aba | O que preencher |
+A interface tem três áreas, mais o menu **Arquivo** e a engrenagem das **Tabelas legais**. No celular, as áreas ficam numa barra inferior e o menu Arquivo no botão ⋮.
+
+| Área | O que tem |
 |---|---|
-| 1. Painel geral | Indicadores, fator "r" por mês, gráficos dos 12 meses (atual × recomendado), alertas e qualidade dos dados. |
-| 2. Perfil da empresa | Ano analisado, mês a partir do qual planejar (meses anteriores ficam como realizados), caixa e reserva mínima, identificação (opcional), natureza jurídica, sócios e participação, regime atual e anterior, contabilidade, perguntas de elegibilidade ao Simples, ISS, equiparação hospitalar, retenções, RAT/FAP/terceiros e custos administrativos incrementais de cada regime. Empresas com menos de 12 meses ganham um bloco de início de atividade. |
-| 3. Receitas | Preenchimento fixo, variável ou por cenários; tratamento tributário de cada tipo de receita (anexo do Simples e presunção do Presumido); tabela de 12 meses com consultas, plantões, hospitalar, procedimentos, exames, outras médicas, não médicas, cancelamentos, descontos, outras receitas, recebida e a receber; botões **Duplicar mês**, **Até dez** e **Adicionar receita**; histórico dos 12 meses anteriores (base da RBT12/FS12); resumo com acumulado, RBT12, média, crescimento, maior/menor mês, variação sazonal e projeção. |
-| 4. Despesas | Cadastro por categoria (operacionais, transporte, formação, financeiras/investimentos, pessoais) com recorrência, parcelas, reajuste, corte planejado, natureza empresarial/pessoal/mista, uso profissional, titularidade e uso pessoal de veículo, documento, tratamento confirmado ou não. Mostra efeito financeiro e tributário separados. |
-| 5. Tributos atuais | Pagamentos, retenções e provisões com competência, data, código de receita e órgão. DARF só é atribuído a um tributo com código reconhecido. Conciliação informado × calculado. |
-| 6. Pró-labore e folha | Pró-labore atual, plano mensal, valor efetivamente pago, INSS/IRRF descontados, comprovação; empregados CLT, outros sócios e autônomos; incremento da busca (R$ 100/250/500/1.000 ou outro), mínimo, máximo, variação entre meses, regra de fim de horizonte e materialidade. |
-| 7. Pessoa física | Dependentes, pensão, deduções, outras rendas, INSS de outras fontes (teto), carnê-leão, rendimentos isentos e exclusivos, dividendos de outras empresas. Mostra IRRF mensal, IRPF anual (completa × simplificada), antecipações, saldo e IRPFM. |
-| 8. Distribuição de lucros | Política (automática, mensal, trimestral, anual ou manual), limite de R$ 50 mil/mês, retenção de lucros, lucros acumulados e saldo de transição (apurados até 2025). Prévia mensal com lucro distribuível, reserva de caixa e retenção. |
-| 9. Cenários e otimização | **Executar análise**: gráfico principal, plano recomendado, comparação de cenários, cenários de receita, pontos de equilíbrio, sensibilidade, efeito no ano seguinte, memória de cálculo, alertas e **Salvar cenário para comparar**. |
-| 10. Relatório final | Diagnóstico, melhor cenário, comparação financeira, plano de ação e limitações. **Imprimir relatório** gera PDF pelo navegador. |
-| 11. Parâmetros legais e fontes | Tabelas, fontes, data de consulta, vigência e status de cada parâmetro; editor JSON para atualizar valores ou criar um novo ano. |
+| **Resultado** | Abre primeiro. **Resumo**: recomendação e economia projetada no topo; custo total, carga sobre a receita, renda líquida e meses no Anexo III, com a comparação com o plano atual (chave **Comparar com o plano atual**); gráfico de custo × pró-labore; fator "r" por mês com a faixa de anexos; tributos por mês; pró-labore × lucros; **plano mês a mês**; alertas, cada um com link para a etapa dos Dados onde se resolve. **Cenários**: comparação de cenários do menor para o maior custo, curvas de custo com faixa de incerteza e parcelas PJ/PF, cenários de receita, regimes disponíveis, caixa da empresa e **Salvar cenário para comparar**. **Sensibilidade**: o que mais mexe no custo, pontos de equilíbrio e efeito no ano seguinte. **Memória de cálculo**: fator "r", alíquota e DAS (ou apuração trimestral) e pessoa física de qualquer competência, do plano recomendado ou do atual. Ano e cenário de receita podem ser trocados no topo da área. |
+| **Dados** | Formulário em 5 etapas, que podem ser preenchidas em qualquer ordem. O modo **Essencial** mostra só os campos que mais pesam no resultado; o modo **Completo** mostra todos. Ao lado, o painel **Efeito no resultado** mostra a economia projetada, quanto a última alteração mudou o custo, o fator "r" do primeiro mês planejado, a qualidade dos dados e uma dica da etapa. |
+| **Relatório** | Botão **Gerar relatório**: diagnóstico, melhor cenário, comparação financeira, plano de ação e limitações, em linguagem para quem não tem formação contábil. **Imprimir** gera PDF pelo navegador. |
 
-**Salvar e carregar.** Os dados são salvos automaticamente no armazenamento local do navegador (botões **Salvar** e **Carregar** também disponíveis). Eles podem ser perdidos se os dados do site forem apagados: use **Mais → Exportar backup (.json)** e **Importar backup**. **Mais → Limpar dados** pede confirmação.
+| Etapa dos Dados | Essencial | Completo acrescenta |
+|---|---|---|
+| 1. Empresa | Ano analisado, mês a partir do qual planejar (meses anteriores ficam como realizados), caixa inicial e reserva mínima, data de abertura, regime atual, natureza jurídica, contabilidade regular e a elegibilidade calculada de cada regime. Empresas com menos de 12 meses ganham o bloco de início de atividade. | Reconhecimento da receita, regime anterior, balancetes, prejuízo fiscal, identificação (opcional), perguntas de elegibilidade ao Simples, ISS, equiparação hospitalar, retenções, RAT/FAP/terceiros e custos administrativos incrementais de cada regime. |
+| 2. Receitas | Preenchimento por valor fixo, mês a mês ou cenários; tabela dos 12 meses com consultas, plantões, procedimentos (e qualquer outra coluna já preenchida), botões **Duplicar ↓** e **Até dez**; resumo e edição do histórico dos 12 meses anteriores (base da RBT12/FS12). | Demais tipos de receita, cancelamentos, descontos, outras receitas, recebida e a receber; cenários e crescimento; tratamento tributário de cada tipo de receita; **Adicionar receita**; resumo com acumulado, RBT12, média, crescimento e sazonalidade. |
+| 3. Folha e custos | Pró-labore atual e comprovação do pagamento; empregados CLT, outros sócios e autônomos; despesas em lista compacta (clique para editar) com **Adicionar despesa**. | Plano de pró-labore mês a mês com valores pagos e descontados; resumo das despesas com efeito financeiro × tributário; parâmetros da busca de pró-labore (incremento, mínimo, máximo, variação entre meses, fim do horizonte e materialidade). |
+| 4. Sócio e lucros | Dependentes, despesas médicas e com instrução, outras rendas tributáveis; política de distribuição de lucros, lucros acumulados e saldo de transição (apurados até 2025). | Pensão, PGBL, opção de declaração, demais rendas e retenções, sócios e participação, limite de R$ 50 mil/mês, IRPF anual (completa × simplificada), IRPFM, IRRF mensal e prévia da distribuição mês a mês. |
+| 5. Pagamentos (opcional) | Pagamentos com tributo, valor, competência e código de receita; conciliação informado × calculado. DARF só é atribuído a um tributo com código reconhecido. | Data, órgão, natureza e situação de cada pagamento. |
+
+**Tabelas legais.** A engrenagem abre, em painel lateral, as tabelas, fontes, data de consulta, vigência e status de cada parâmetro, e o editor JSON para atualizar valores ou criar um novo ano.
+
+**Arquivo.** Os dados são salvos automaticamente no armazenamento local do navegador, com o horário visível no topo. O menu **Arquivo** reúne **Salvar agora**, **Carregar dados salvos**, **Exportar backup (.json)**, **Importar backup**, **Exportar CSV**, **Imprimir relatório**, **Tabelas legais**, **Início rápido**, **Carregar exemplo fictício** e **Limpar dados** (pede confirmação). Os dados do navegador podem ser perdidos se os dados do site forem apagados: exporte um backup.
+
+**Endereços.** Cada tela tem endereço próprio (`#resultado/cenarios`, `#dados/3`, `#relatorio`), e o botão Voltar do navegador funciona entre elas.
 
 **Exportar.** **Exportar CSV** (separador `;` e vírgula decimal) traz resumo anual atual × recomendado, cenários, pró-labore mensal, detalhe mensal, curva de otimização e status dos parâmetros.
 
@@ -45,7 +52,7 @@ src/otimizador.js   busca de cenários, sensibilidade, equilíbrio, plano de aç
 src/exportacao.js   CSV
 src/exemplo.js      dados fictícios de demonstração
 src/graficos.js     gráficos SVG sem bibliotecas
-src/ui.js           interface
+src/ui.js           interface (Resultado, Dados em 5 etapas, Relatório, Tabelas legais, Início rápido)
 src/estilos.css, src/template.html
 scripts/build.js    gera dist/ (arquivo único + variante para publicação hospedada)
 ```
@@ -56,7 +63,10 @@ node --test tests/motor.test.js  # testes do motor e do otimizador
 node --test tests/ui.test.js     # teste de interface (Playwright + Chromium)
 node scripts/relatorio-exemplo.js
 node scripts/capturas.js         # imagens de docs/ (Playwright)
+scripts/publicar-demo.sh ../simulador-medico-pj   # publica a versão de teste
 ```
+
+**Versão de teste pública.** O repositório público `ranierimattos/simulador-medico-pj` guarda só o arquivo único (`index.html`), um README e o workflow do GitHub Pages, que ficam em `demo/`. O código-fonte continua neste repositório. Para publicar ou atualizar: clone o repositório público ao lado deste e rode `scripts/publicar-demo.sh` com o caminho do clone; o script gera o arquivo, copia, faz commit e push na `main`, e o workflow publica em https://ranierimattos.github.io/simulador-medico-pj/. O Pages precisa estar ativado lá em Settings → Pages → Source: GitHub Actions.
 
 ---
 
@@ -129,7 +139,7 @@ Revisão dos parâmetros: **26/10/2026**. Status possíveis: conferido em fonte 
 | Dividendos | isentos | retenção 10% acima de R$ 50 mil/mês; transição para lucros até 2025 | igual | Lei 15.270/2025 |
 | IRPFM | — | R$ 600 mil a R$ 1,2 mi, até 10%; redutor 34% | igual | Lei 15.270/2025 (arts. 16-A e 16-B da Lei 9.250) |
 
-Os valores completos, URLs e observações estão na aba **Parâmetros legais e fontes** e em `src/parametros.js`. Para um novo ano: na aba de parâmetros, **Criar ano a partir deste**, editar o JSON e aplicar (fica marcado como personalizado), ou adicionar o bloco em `src/parametros.js` e rodar o build.
+Os valores completos, URLs e observações estão em **Tabelas legais** (engrenagem no topo) e em `src/parametros.js`. Para um novo ano: em Tabelas legais, **Criar ano a partir deste**, editar o JSON e aplicar (fica marcado como personalizado), ou adicionar o bloco em `src/parametros.js` e rodar o build.
 
 ---
 
@@ -169,7 +179,7 @@ Os valores completos, URLs e observações estão na aba **Parâmetros legais e 
 - Otimizador: plano mensal igual ao ótimo da força bruta num espaço pequeno; resultado recomendado = simulação completa; respeita caixa; míope ≥ anual; não recomenda regime inelegível; pode concluir que não há vantagem; nunca recomenda algo mais caro que o plano atual.
 - Exportação CSV com totais iguais aos do motor; backup recarregado sem perda.
 
-`node --test tests/ui.test.js` — teste de interface no Chromium: arquivo abre sem erros e **sem nenhuma requisição de rede**; economia do painel = economia do motor; pontos do gráfico e marcador de menor custo = simulação do motor; relatório com os mesmos números; edição marca a análise como desatualizada; salvar → recarregar mantém os dados; download do CSV com totais do motor; imprimir chama a impressão; limpar exige confirmação; sem rolagem horizontal a 390 px.
+`node --test tests/ui.test.js` — teste de interface no Chromium: arquivo abre sem erros e **sem nenhuma requisição de rede**; início rápido na primeira abertura; economia do herói = economia do motor; pontos dos gráficos de custo (Resumo e Cenários), ponto do plano recomendado e marcador de menor custo = simulação do motor; sub-seções e endereços do Resultado; relatório com os mesmos números; link do alerta leva à etapa de origem; edição nos Dados marca o resultado como desatualizado, o recálculo automático roda e o painel **Efeito no resultado** mostra a diferença calculada pelo motor; modo Completo mostra mais colunas; salvar → recarregar mantém os dados; download do CSV com totais do motor; imprimir chama a impressão; Tabelas legais abrem e fecham; limpar exige confirmação; início rápido gera cadastro e análise; sem rolagem horizontal a 390 px em todas as telas, nos dois modos.
 
 ---
 
@@ -179,4 +189,6 @@ O exemplo fictício (clínica com receita de R$ 576 mil em 2026, Anexo V, pró-l
 
 **Melhor alternativa encontrada:** permanecer no Simples Nacional com pró-labore mais alto de janeiro a junho (R$ 12.871 a R$ 21.621) e mínimo depois, levando junho a dezembro ao Anexo III. Custo total de R$ 96.602,94 contra R$ 105.904,62: **economia projetada de R$ 9.301,68 em 2026**. Nenhum pró-labore uniforme gera economia no ano, e o efeito se esgota no ano seguinte se não for renovado. Exige validação profissional: deliberação e pagamento efetivo do pró-labore variável, composição da folha do fator "r", fator "r" entre 28% e 31% em vários meses, divergência no DAS informado e DARF sem código.
 
-![Painel geral com o exemplo fictício](docs/painel-geral.png)
+![Resultado com o exemplo fictício](docs/painel-geral.png)
+
+![Dados em etapas, com o painel Efeito no resultado](docs/dados-etapas.png)

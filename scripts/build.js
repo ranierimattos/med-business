@@ -27,13 +27,7 @@ const MODULOS = [
 
 function montar(artefato) {
   let html = src('template.html');
-  const css = src('estilos.css') + `
-details.menu { position: relative; }
-details.menu > summary { list-style: none; }
-details.menu > summary::-webkit-details-marker { display: none; }
-details.menu .menu-lista { position: absolute; right: 0; top: calc(100% + 4px); z-index: 25; background: var(--surface); border: 1px solid var(--line-strong); border-radius: var(--raio-sm); box-shadow: var(--shadow); padding: 6px; display: grid; gap: 2px; min-width: 220px; }
-details.menu .menu-lista .btn { justify-content: flex-start; width: 100%; }
-`;
+  const css = src('estilos.css');
   html = html.replace('/*ESTILOS*/', () => css);
   let scripts = '';
   if (artefato) scripts += '<script>window.__MODO_ARTEFATO__ = true;</script>\n';

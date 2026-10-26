@@ -15,7 +15,15 @@ try { ({ chromium } = require('playwright')); } catch (e) { chromium = null; }
 const ARQ = path.join(__dirname, '..', 'dist', 'simulador-tributario-medico-pj.html');
 const URL = 'file://' + ARQ;
 
-test('interface: arquivo único funciona offline, gráfico = motor, salvar/carregar, exportar, limpar', { skip: !chromium || !fs.existsSync(ARQ) ? 'playwright ou dist ausente' : false, timeout: 120000 }, async () => {
+async function abrirMenu(pagina) {
+  if (!(await pagina.$eval('#menu-arquivo', (d) => d.open))) await pagina.click('#menu-arquivo summary');
+}
+// espera uma análise diferente da guardada em window.__analiseAnterior e o fim do indicador de cálculo
+async function esperarAnaliseNova(pagina) {
+  await pagina.waitForFunction(() => { const a = window.SimuladorUI.analise(); return a && a !== window.__analiseAnterior && !document.querySelector('#identificacao').textContent.includes('Recalculando'); }, null, { timeout: 30000 });
+}
+
+test('interface: arquivo único offline, resultado = motor, dados com recálculo, arquivo, celular', { skip: !chromium || !fs.existsSync(ARQ) ? 'playwright ou dist ausente' : false, timeout: 180000 }, async () => {
   const navegador = await chromium.launch();
   const contexto = await navegador.newContext({ viewport: { width: 1280, height: 900 }, acceptDownloads: true });
   const pagina = await contexto.newPage();
@@ -25,89 +33,163 @@ test('interface: arquivo único funciona offline, gráfico = motor, salvar/carre
   pagina.on('request', (r) => { const u = r.url(); if (!/^(file|data|blob):/.test(u)) rede.push(u); });
   try {
     await pagina.goto(URL);
+
+    // 1. Primeira abertura: início rápido; o exemplo fictício já fica carregado por trás
+    await pagina.waitForSelector('#inicio:not([hidden]) #q-receita');
+    await pagina.click('[data-acao="inicio-exemplo"]');
+    assert.equal(await pagina.$eval('#inicio', (el) => el.hidden), true);
     await pagina.waitForFunction(() => window.SimuladorUI && window.SimuladorUI.analise(), null, { timeout: 30000 });
+    await pagina.waitForSelector('#economia-projetada');
 
-    // 1. Economia exibida = economia calculada pelo motor
-    const kpi = await pagina.$eval('.kpi.heroi .valor', (el) => el.textContent);
+    // 2. Economia exibida no herói = economia calculada pelo motor
+    const heroi = await pagina.$eval('#economia-projetada', (el) => el.textContent);
     const econ = await pagina.evaluate(() => window.MotorTributario.brl(window.SimuladorUI.analise().economia));
-    assert.equal(kpi, econ);
+    assert.equal(heroi, econ);
 
-    // 2. Pontos do gráfico de otimização = simulação completa do motor
-    await pagina.click('#aba-cenarios');
+    // 3. Pontos dos gráficos de custo (Resumo e Cenários) = simulação completa do motor
+    async function conferirCurva(sel) {
+      return pagina.evaluate((s) => {
+        const M = window.MotorTributario, O = window.Otimizador;
+        const pts = JSON.parse(document.querySelector(s).getAttribute('data-pontos'));
+        const est = window.SimuladorUI.estado();
+        const P = window.SimuladorUI.parametros().anos[est.analise.ano];
+        const ctx = M.prepararContexto(est, P);
+        return [0, Math.floor(pts.length / 3), Math.floor(pts.length / 2), pts.length - 1].map((i) => [pts[i][1], M.simular(ctx, { regime: 'simples', proLabore: O.planoUniforme(ctx, pts[i][0]) }).anual.custoTotal]);
+      }, sel);
+    }
+    (await conferirCurva('#grafico-custo')).forEach(([g, m]) => assert.equal(g, m));
+    const pontoRec = await pagina.$eval('#grafico-custo [data-ponto="recomendado"]', (el) => +el.getAttribute('data-y'));
+    assert.equal(pontoRec, await pagina.evaluate(() => window.SimuladorUI.analise().recomendado.anual.custoTotal));
+    await pagina.click('[data-sub="cenarios"]');
     await pagina.waitForSelector('#grafico-otim svg');
-    const conferencia = await pagina.evaluate(() => {
-      const M = window.MotorTributario, O = window.Otimizador;
-      const pts = JSON.parse(document.getElementById('grafico-otim').getAttribute('data-pontos'));
-      const est = window.SimuladorUI.estado();
-      const P = window.SimuladorUI.parametros().anos[est.analise.ano];
-      const ctx = M.prepararContexto(est, P);
-      const idx = [0, Math.floor(pts.length / 3), Math.floor(pts.length / 2), pts.length - 1];
-      return idx.map((i) => {
-        const r = M.simular(ctx, { regime: 'simples', proLabore: O.planoUniforme(ctx, pts[i][0]) });
-        return [pts[i][1], r.anual.custoTotal];
-      });
-    });
-    conferencia.forEach(([grafico, motor]) => assert.equal(grafico, motor));
-    // marcador do menor custo coincide com o mínimo da curva viável
-    const marcador = await pagina.$eval('[data-ponto="minimo"]', (el) => +el.getAttribute('data-y'));
+    (await conferirCurva('#grafico-otim')).forEach(([g, m]) => assert.equal(g, m));
+    const marcador = await pagina.$eval('#grafico-otim [data-ponto="minimo"]', (el) => +el.getAttribute('data-y'));
     const minimo = await pagina.evaluate(() => { const a = window.SimuladorUI.analise(); return a.regimes[a.regimeRecomendado].melhorUniforme.custo; });
     assert.equal(marcador, minimo);
 
-    // 3. Relatório usa os mesmos números
-    await pagina.click('#aba-relatorio');
+    // 4. Sub-seções do resultado
+    await pagina.click('[data-sub="sensibilidade"]');
+    await pagina.waitForSelector('#grafico-tornado svg');
+    await pagina.click('[data-sub="memoria"]');
+    const memoria = await pagina.$eval('.memoria-cartao .destaque', (el) => el.textContent);
+    assert.match(memoria, /r = .*→ Anexo/);
+    assert.equal(await pagina.evaluate(() => location.hash), '#resultado/memoria');
+
+    // 5. Relatório (botão "Gerar relatório") usa os mesmos números
+    await pagina.click('.topo a[data-area="relatorio"]');
+    await pagina.waitForSelector('.relatorio');
     const textoRel = await pagina.$eval('.relatorio', (el) => el.innerText);
     const custoRec = await pagina.evaluate(() => window.MotorTributario.brl(window.SimuladorUI.analise().recomendado.anual.custoTotal));
     assert.ok(textoRel.includes(custoRec), 'custo total recomendado aparece no relatório');
 
-    // 4. Edição marca a análise como desatualizada e atualiza derivados
-    await pagina.click('#aba-receitas');
+    // 6. Alerta leva à etapa de origem nos Dados
+    await pagina.click('.topo a[data-area="resultado"]');
+    await pagina.click('[data-sub="resumo"]');
+    await pagina.click('[data-alerta="darf_sem_codigo"]');
+    assert.equal(await pagina.evaluate(() => location.hash), '#dados/5');
+    assert.equal(await pagina.textContent('#etapa-titulo'), '5. Pagamentos');
+
+    // 7. Edição em Dados: estado atualizado, resultado marcado como desatualizado, recálculo automático e efeito no painel
+    await pagina.click('.etapa-botao[data-etapa="2"]');
     const campo = '#f-receitas-meses-0-consultas';
+    await pagina.evaluate(() => { window.__analiseAnterior = window.SimuladorUI.analise(); });
+    const custoAntes = await pagina.evaluate(() => window.SimuladorUI.analise().atual.anual.custoTotal);
     await pagina.fill(campo, '30.000,00');
     await pagina.dispatchEvent(campo, 'change');
     await pagina.waitForTimeout(400);
     assert.equal(await pagina.evaluate(() => window.SimuladorUI.estado().receitas.meses[0].consultas), '30.000,00');
-    assert.ok((await pagina.textContent('#identificacao')).includes('desatualizada'));
+    assert.ok((await pagina.textContent('#identificacao')).includes('desatualizado'));
+    await esperarAnaliseNova(pagina);
+    const custoDepois = await pagina.evaluate(() => window.SimuladorUI.analise().atual.anual.custoTotal);
+    assert.ok(custoDepois > custoAntes, 'receita maior aumenta o custo do plano atual');
+    await pagina.waitForSelector('.efeito-ultima');
+    const efeito = await pagina.$eval('.efeito-ultima', (el) => el.innerText);
+    const delta = await pagina.evaluate(([a, d]) => { const v = d - a; return (v > 0 ? '+' : '') + window.MotorTributario.brl(v).replace(/,\d{2}$/, ''); }, [custoAntes, custoDepois]);
+    assert.ok(efeito.includes(delta), 'efeito da última alteração = diferença do motor (' + delta + ')');
+    assert.equal(await pagina.$eval('[data-rb="1"]', (el) => el.textContent), 'R$ 50.000');
 
-    // 5. Salvar e recarregar mantém os dados
-    await pagina.click('button[data-acao="salvar"]');
+    // 8. Modo Essencial × Completo
+    const colunasE = await pagina.$$eval('.tabela-receitas thead th', (t) => t.length);
+    await pagina.click('[data-modo="completo"]');
+    const colunasC = await pagina.$$eval('.tabela-receitas thead th', (t) => t.length);
+    assert.ok(colunasC > colunasE, 'modo Completo mostra mais colunas');
+    await pagina.click('[data-modo="essencial"]');
+
+    // 9. Salvar e recarregar mantém os dados (e não reabre o início rápido)
+    await abrirMenu(pagina);
+    await pagina.click('#menu-arquivo button[data-acao="salvar"]');
     await pagina.reload();
     await pagina.waitForFunction(() => window.SimuladorUI && window.SimuladorUI.estado());
     assert.equal(await pagina.evaluate(() => window.MotorTributario.num(window.SimuladorUI.estado().receitas.meses[0].consultas)), 30000);
+    assert.equal(await pagina.$eval('#inicio', (el) => el.hidden), true);
 
-    // 6. Exportar CSV (download real) com totais do motor
+    // 10. Exportar CSV (download real) com totais do motor
     await pagina.evaluate(() => window.SimuladorUI.executarAnalise());
-    await pagina.waitForFunction(() => window.SimuladorUI.analise(), null, { timeout: 30000 });
-    await pagina.waitForTimeout(300);
-    const [download] = await Promise.all([pagina.waitForEvent('download'), pagina.click('.topo button[data-acao="exportar-csv"]')]);
+    await pagina.waitForFunction(() => window.SimuladorUI.analise() && !document.querySelector('#identificacao').textContent.includes('Recalculando'), null, { timeout: 30000 });
+    await abrirMenu(pagina);
+    const [download] = await Promise.all([pagina.waitForEvent('download'), pagina.click('#menu-arquivo button[data-acao="exportar-csv"]')]);
     const csv = fs.readFileSync(await download.path(), 'utf8');
     const linha = csv.split('\r\n').find((l) => l.startsWith('Carga tributária total;'));
     const esperado = await pagina.evaluate(() => window.SimuladorUI.analise().atual.anual.cargaTributaria.toFixed(2).replace('.', ','));
     assert.equal(linha.split(';')[1], esperado);
 
-    // 7. Imprimir chama a impressão do navegador
+    // 11. Imprimir chama a impressão do navegador
     await pagina.evaluate(() => { window.__imprimiu = false; window.print = () => { window.__imprimiu = true; }; });
-    await pagina.click('.topo button[data-acao="imprimir"]');
+    await abrirMenu(pagina);
+    await pagina.click('#menu-arquivo button[data-acao="imprimir"]');
     await pagina.waitForTimeout(300);
     assert.equal(await pagina.evaluate(() => window.__imprimiu), true);
 
-    // 8. Limpar exige confirmação
-    await pagina.click('details.menu summary');
-    await pagina.click('button[data-acao="limpar"]');
+    // 12. Tabelas legais abrem em painel lateral e fecham com Esc
+    await pagina.click('.topo .btn-icone[data-acao="tabelas"]');
+    await pagina.waitForSelector('#gaveta:not([hidden]) #json-param');
+    await pagina.keyboard.press('Escape');
+    assert.equal(await pagina.$eval('#gaveta', (el) => el.hidden), true);
+
+    // 13. Limpar exige confirmação
+    await abrirMenu(pagina);
+    await pagina.click('#menu-arquivo button[data-acao="limpar"]');
     await pagina.click('[data-modal="nao"]');
     assert.equal(await pagina.evaluate(() => window.SimuladorUI.estado().meta.exemplo), true);
-    await pagina.click('details.menu summary');
-    await pagina.click('button[data-acao="limpar"]');
+    await abrirMenu(pagina);
+    await pagina.click('#menu-arquivo button[data-acao="limpar"]');
     await pagina.click('[data-modal="sim"]');
     assert.equal(await pagina.evaluate(() => window.SimuladorUI.estado().despesas.length), 0);
 
-    // 9. Celular: sem rolagem horizontal
+    // 14. Início rápido: 4 respostas geram um cadastro e uma análise
+    await abrirMenu(pagina);
+    await pagina.click('#menu-arquivo button[data-acao="inicio-rapido"]');
+    await pagina.fill('#q-receita', '40.000,00');
+    await pagina.fill('#q-pl', '2.000,00');
+    await pagina.fill('#q-folha', '');
+    await pagina.selectOption('#q-regime', 'simples');
+    await pagina.waitForSelector('.previa-valor');
+    await pagina.evaluate(() => { window.__analiseAnterior = window.SimuladorUI.analise(); });
+    await pagina.click('[data-acao="inicio-ver"]');
+    await esperarAnaliseNova(pagina);
+    const est = await pagina.evaluate(() => { const e = window.SimuladorUI.estado(); return [e.receitas.meses[5].consultas, e.folha.proLaboreAtual, e.folha.pessoas.length]; });
+    assert.deepEqual(est, ['40000', '2000', 0]);
+    assert.equal(await pagina.evaluate(() => location.hash), '#resultado');
+
+    // 15. Celular: sem rolagem horizontal em nenhuma tela
     await pagina.setViewportSize({ width: 390, height: 840 });
-    for (const aba of ['painel', 'receitas', 'despesas', 'folha', 'cenarios', 'parametros']) {
-      await pagina.click('#aba-' + aba);
+    async function largura(rotulo) {
       await pagina.waitForTimeout(150);
-      const larg = await pagina.evaluate(() => document.documentElement.scrollWidth);
-      assert.ok(larg <= 390, `aba ${aba} com largura ${larg}`);
+      const l = await pagina.evaluate(() => document.documentElement.scrollWidth);
+      assert.ok(l <= 390, rotulo + ' com largura ' + l);
     }
+    await pagina.click('.nav-inferior a[data-area="resultado"]');
+    for (const s of ['resumo', 'cenarios', 'sensibilidade', 'memoria']) { await pagina.click('[data-sub="' + s + '"]'); await largura('resultado/' + s); }
+    await pagina.click('.nav-inferior a[data-area="dados"]');
+    for (const m of ['essencial', 'completo']) {
+      await pagina.click('[data-modo="' + m + '"]');
+      for (let e = 1; e <= 5; e++) { await pagina.click('.etapa-botao[data-etapa="' + e + '"]'); await largura('dados/' + e + ' (' + m + ')'); }
+    }
+    await pagina.click('.nav-inferior a[data-area="relatorio"]');
+    await largura('relatório');
+    await abrirMenu(pagina);
+    await pagina.click('#menu-arquivo button[data-acao="tabelas"]');
+    await largura('tabelas legais');
 
     assert.deepEqual(erros, [], 'sem erros de JavaScript');
     assert.deepEqual(rede, [], 'nenhuma requisição de rede');
