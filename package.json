@@ -1,0 +1,13 @@
+{
+  "name": "simulador-tributario-medico-pj",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Simulador de otimização tributária para médicos PJ no Brasil (Simples Nacional/fator r, Lucro Presumido, Lucro Real, pró-labore, IRPF, IRPFM e distribuição de lucros). Arquivo HTML único, offline.",
+  "scripts": {
+    "build": "node scripts/build.js",
+    "test": "node --test tests/motor.test.js",
+    "test:ui": "node scripts/build.js && node --test tests/ui.test.js",
+    "relatorio-exemplo": "node scripts/relatorio-exemplo.js"
+  },
+  "license": "UNLICENSED"
+}

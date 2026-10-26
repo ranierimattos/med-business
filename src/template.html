@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<!--CSP-->
+<title>Simulador Tributário Médico PJ</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="Planejamento financeiro e otimização tributária de médicos que atuam por pessoa jurídica: Simples Nacional (fator r), Lucro Presumido, Lucro Real, pró-labore, IRPF e distribuição de lucros. Funciona offline; os dados ficam no navegador.">
+<style>
+/*ESTILOS*/
+</style>
+</head>
+<body>
+<header class="topo">
+  <div class="topo-linha">
+    <div class="marca">
+      <div class="marca-icone" aria-hidden="true">Fr</div>
+      <div>
+        <h1>Simulador Tributário Médico PJ</h1>
+        <div class="sub">Regime, fator "r", pró-labore, IRPF e lucros — análise de 12 meses</div>
+      </div>
+    </div>
+    <div class="acoes">
+      <span id="identificacao"></span>
+      <button class="btn btn-primario" data-acao="analisar">Executar análise</button>
+      <button class="btn" data-acao="salvar">Salvar</button>
+      <button class="btn" data-acao="carregar">Carregar</button>
+      <button class="btn" data-acao="exportar-csv" data-rotulo-artefato="Copiar CSV">Exportar CSV</button>
+      <button class="btn" data-acao="imprimir" data-somente-arquivo>Imprimir</button>
+      <details class="menu">
+        <summary class="btn">Mais</summary>
+        <div class="menu-lista">
+          <button class="btn btn-texto" data-acao="exportar-backup" data-rotulo-artefato="Copiar backup (.json)">Exportar backup (.json)</button>
+          <button class="btn btn-texto" data-acao="importar-backup">Importar backup</button>
+          <button class="btn btn-texto" data-acao="exemplo">Carregar exemplo fictício</button>
+          <button class="btn btn-texto btn-perigo" data-acao="limpar">Limpar dados</button>
+        </div>
+      </details>
+    </div>
+  </div>
+  <nav class="abas" id="abas" role="tablist" aria-label="Etapas"></nav>
+</header>
+
+<main>
+  <section class="painel" id="painel-painel" role="tabpanel" aria-labelledby="aba-painel"></section>
+  <section class="painel" id="painel-perfil" role="tabpanel" aria-labelledby="aba-perfil" hidden></section>
+  <section class="painel" id="painel-receitas" role="tabpanel" aria-labelledby="aba-receitas" hidden></section>
+  <section class="painel" id="painel-despesas" role="tabpanel" aria-labelledby="aba-despesas" hidden></section>
+  <section class="painel" id="painel-tributos" role="tabpanel" aria-labelledby="aba-tributos" hidden></section>
+  <section class="painel" id="painel-folha" role="tabpanel" aria-labelledby="aba-folha" hidden></section>
+  <section class="painel" id="painel-pf" role="tabpanel" aria-labelledby="aba-pf" hidden></section>
+  <section class="painel" id="painel-distribuicao" role="tabpanel" aria-labelledby="aba-distribuicao" hidden></section>
+  <section class="painel" id="painel-cenarios" role="tabpanel" aria-labelledby="aba-cenarios" hidden></section>
+  <section class="painel" id="painel-relatorio" role="tabpanel" aria-labelledby="aba-relatorio" hidden></section>
+  <section class="painel" id="painel-parametros" role="tabpanel" aria-labelledby="aba-parametros" hidden></section>
+</main>
+
+<footer class="rodape">
+  <p><strong>Privacidade:</strong> todos os cálculos rodam neste navegador. Nenhum dado é enviado a servidores, e não há rastreamento. Os dados ficam no armazenamento local do navegador e podem ser perdidos se os dados do site ou do dispositivo forem apagados: exporte um backup.</p>
+  <p>Ferramenta de apoio à decisão. Não substitui a revisão do contador ou de profissional tributário habilitado. Estimativas não são valores oficiais.</p>
+  <p id="status-dados"></p>
+  <p id="versao-param"></p>
+</footer>
+
+<input type="file" id="arquivo-backup" accept="application/json,.json" hidden>
+<div class="fundo-modal" id="fundo-modal" hidden><div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="modal-titulo"></div></div>
+<div class="calculando" id="calculando" hidden><div role="status">Calculando cenários…</div></div>
+<div class="notificacao" id="notificacao" role="status" aria-live="polite" hidden></div>
+
+<!--SCRIPTS-->
+</body>
+</html>
