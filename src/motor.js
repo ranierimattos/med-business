@@ -1378,7 +1378,7 @@
 
     if (ctx.empresaInexistente) add('critico', 'empresa_inexistente', 'Data de abertura posterior ao ano analisado', 'A data de abertura informada é posterior a dezembro do ano analisado.', 'Nenhum cálculo é confiável até a data ser corrigida.');
     var rbTotal = soma(ctx.meses.map(function (m) { return m.rb; }));
-    if (rbTotal <= 0) add('critico', 'sem_receita', 'Nenhuma receita informada', 'Preencha a aba Receitas (ou carregue o exemplo).', 'Sem receita, os tributos e o fator "r" ficam zerados.');
+    if (rbTotal <= 0) add('critico', 'sem_receita', 'Nenhuma receita informada', 'Preencha a etapa Receitas em Dados (ou carregue o exemplo).', 'Sem receita, os tributos e o fator "r" ficam zerados.');
 
     if (resAtual && temFatorR) {
       var proximos = resAtual.meses.filter(function (m) { return m.ativo && m.rb > 0 && m.fatorR >= 0.25 && m.fatorR < 0.31; });
@@ -1395,7 +1395,7 @@
     if (ctx.regimeCaixaSolicitado && !ctx.regimeCaixa) add('atencao', 'regime_caixa', 'Regime de caixa não admitido no ano', 'Os parâmetros de ' + ctx.ano + ' não admitem o regime de caixa no Simples Nacional (Res. CGSN 190/2026). O cálculo usou competência.', '');
     if (ctx.regimeCaixa && ctx.meses.some(function (m) { return m.ativo && m.rb > 0 && !m.recebidaInformada; })) add('info', 'caixa_sem_recebida', 'Receita recebida não informada', 'No regime de caixa, meses sem "receita recebida" usam o faturamento como recebido.', '');
     TIPOS_RECEITA.forEach(function (tp) {
-      if (ctx.tratamento[tp.id].simples === 'nao_segregada' && ctx.meses.some(function (m) { return m.grupos[tp.id] > 0; })) add('atencao', 'nao_segregada', 'Receita de atividade não médica sem segregação', '"' + tp.rotulo + '" foi tratada como medicina (fator "r"). Defina o anexo correto na aba Receitas.', 'O DAS dessa parcela pode estar errado.');
+      if (ctx.tratamento[tp.id].simples === 'nao_segregada' && ctx.meses.some(function (m) { return m.grupos[tp.id] > 0; })) add('atencao', 'nao_segregada', 'Receita de atividade não médica sem segregação', '"' + tp.rotulo + '" foi tratada como medicina (fator "r"). Defina o anexo correto em Dados › Receitas (modo Completo).', 'O DAS dessa parcela pode estar errado.');
     });
     if (hasReceitaHospitalar(ctx)) {
       if (ctx.hospitalarOk) add('atencao', 'hospitalar', 'Equiparação hospitalar aplicada no Lucro Presumido', 'Presunção de 8% (IRPJ) e 12% (CSLL) aplicada às receitas marcadas como hospitalares/diagnóstico. Exige sociedade empresária, atendimento às normas da Anvisa e que o serviço se enquadre (Lei 9.249, art. 15, § 1º, III, "a").', 'Validar com o contador antes de usar a comparação de regimes.');
@@ -1414,15 +1414,15 @@
       if (cat.tipo === 'pessoal' && d.natureza === 'empresarial') add('critico', 'pessoal_como_pj', 'Despesa pessoal classificada como empresarial', '"' + (d.nome || cat.rotulo) + '" está na categoria pessoal. O simulador a excluiu da empresa.', '');
       if (cat.tipo === 'transporte' && d.titularidade === 'pf' && d.natureza !== 'pessoal') add('atencao', 'veiculo_pf', 'Despesa de veículo em nome da pessoa física', '"' + (d.nome || cat.rotulo) + '": veículo de titularidade da PF lançado na empresa exige contrato e comprovação de uso profissional.', '');
       if (cat.tipo === 'transporte' && (d.usoPessoalPct === '' || d.usoPessoalPct === undefined) && d.natureza !== 'mista' && d.natureza !== 'pessoal') add('info', 'veiculo_uso', 'Uso pessoal do veículo não informado', '"' + (d.nome || cat.rotulo) + '": informe o percentual de uso pessoal. Sem essa informação, 100% foi tratado como profissional.', '');
-      if (cat.tipo === 'terceirizacao' && d.vinculo === 'clt') add('atencao', 'clt_em_despesa', 'Empregado CLT lançado em despesas', '"' + (d.nome || cat.rotulo) + '" foi excluído do cálculo para evitar dupla contagem. Cadastre empregados CLT na aba Pró-labore e folha.', '');
+      if (cat.tipo === 'terceirizacao' && d.vinculo === 'clt') add('atencao', 'clt_em_despesa', 'Empregado CLT lançado em despesas', '"' + (d.nome || cat.rotulo) + '" foi excluído do cálculo para evitar dupla contagem. Cadastre empregados CLT em Dados › Folha e custos.', '');
       if (d.documento !== 'sim' && cat.tipo !== 'pessoal' && d.natureza !== 'pessoal') add('info', 'sem_documento', 'Despesa sem documento comprobatório', '"' + (d.nome || cat.rotulo) + '" entrou no fluxo de caixa, mas é indedutível no Lucro Real e frágil em fiscalização.', '');
     });
     (e.tributosPagos || []).forEach(function (p) {
       if (p.tributo === 'DARF' && !String(p.codigoReceita || '').trim()) add('atencao', 'darf_sem_codigo', 'DARF sem código de receita', 'Pagamento de ' + brl(n0(p.valor)) + ' (competência ' + (p.competencia || '?') + ') sem código. Não foi atribuído a nenhum tributo.', 'A conciliação ignora esse pagamento.');
     });
-    if (extra.divergencias && extra.divergencias.length) add('atencao', 'divergencia', 'Divergência entre tributos informados e calculados', extra.divergencias.length + ' competência(s) com diferença acima de R$ 10 e 1%. Veja a aba Tributos atuais.', 'Os pagamentos informados não foram presumidos corretos.');
+    if (extra.divergencias && extra.divergencias.length) add('atencao', 'divergencia', 'Divergência entre tributos informados e calculados', extra.divergencias.length + ' competência(s) com diferença acima de R$ 10 e 1%. Veja Dados › Pagamentos.', 'Os pagamentos informados não foram presumidos corretos.');
     if (e.empresa.contabilidadeRegular !== 'sim') add('atencao', 'sem_escrituracao', 'Escrituração contábil não confirmada', 'Sem escrituração, a distribuição isenta fica limitada ao lucro presumido menos tributos, e o redutor do IRPFM não pode ser usado.', 'Distribuições acima desse limite não são recomendadas.');
-    if ((e.empresa.outrasFontesRemuneracao === 'sim' || e.folha.multiplasFontes === 'sim') && !n0(e.pf.outrasRendasTributaveisAnual) && !n0(e.pf.salarioContribuicaoOutrasFontesMensal)) add('atencao', 'outras_fontes', 'Outras fontes de renda não informadas', 'O perfil indica outras fontes de remuneração, mas a aba Pessoa física não traz valores. O IRPF anual e o teto do INSS podem estar subestimados.', 'Resultado da pessoa física incompleto.');
+    if ((e.empresa.outrasFontesRemuneracao === 'sim' || e.folha.multiplasFontes === 'sim') && !n0(e.pf.outrasRendasTributaveisAnual) && !n0(e.pf.salarioContribuicaoOutrasFontesMensal)) add('atencao', 'outras_fontes', 'Outras fontes de renda não informadas', 'O perfil indica outras fontes de remuneração, mas a etapa Sócio e lucros não traz valores. O IRPF anual e o teto do INSS podem estar subestimados.', 'Resultado da pessoa física incompleto.');
     if (resAtual) {
       var A = resAtual.anual;
       if (A.irpfm.ativo && A.irpfm.rendimentos > P.irpfm.limiteInferior) add('atencao', 'irpfm', 'Rendimentos sujeitos à tributação mínima (IRPFM)', 'Rendimentos anuais estimados de ' + brl(A.irpfm.rendimentos) + ' (acima de R$ 600 mil). Alíquota mínima de ' + pct(A.irpfm.aliquota) + '; adicional estimado de ' + brl(A.irpfm.adicional) + '.' + (A.irpfm.redutorAplicavel && !ctx.demonstracoes ? ' O redutor do art. 16-B seria aplicável, mas exige demonstrações financeiras.' : ''), 'Regra nova e com regulamentação em evolução.');

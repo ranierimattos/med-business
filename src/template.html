@@ -12,60 +12,76 @@
 </style>
 </head>
 <body>
+<a class="pular" href="#conteudo">Pular para o conteúdo</a>
 <header class="topo">
   <div class="topo-linha">
     <div class="marca">
       <div class="marca-icone" aria-hidden="true">Fr</div>
-      <div>
+      <div class="marca-texto">
         <h1>Simulador Tributário Médico PJ</h1>
-        <div class="sub">Regime, fator "r", pró-labore, IRPF e lucros — análise de 12 meses</div>
+        <div class="sub" id="identificacao"></div>
       </div>
     </div>
+    <nav class="areas" aria-label="Áreas">
+      <a href="#resultado" data-area="resultado">Resultado</a>
+      <a href="#dados" data-area="dados">Dados</a>
+    </nav>
     <div class="acoes">
-      <span id="identificacao"></span>
-      <button class="btn btn-primario" data-acao="analisar">Executar análise</button>
-      <button class="btn" data-acao="salvar">Salvar</button>
-      <button class="btn" data-acao="carregar">Carregar</button>
-      <button class="btn" data-acao="exportar-csv" data-rotulo-artefato="Copiar CSV">Exportar CSV</button>
-      <button class="btn" data-acao="imprimir" data-somente-arquivo>Imprimir</button>
-      <details class="menu">
-        <summary class="btn">Mais</summary>
+      <a class="btn btn-primario so-largo" href="#relatorio" data-area="relatorio">Gerar relatório</a>
+      <details class="menu" id="menu-arquivo">
+        <summary class="btn" aria-label="Menu Arquivo"><span class="so-largo">Arquivo</span><svg class="so-largo" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg><svg class="so-estreito" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="12" cy="5" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="19" r="2"/></svg></summary>
         <div class="menu-lista">
+          <span class="menu-grupo">Salvamento automático neste navegador</span>
+          <button class="btn btn-texto" data-acao="salvar">Salvar agora</button>
+          <button class="btn btn-texto" data-acao="carregar">Carregar dados salvos</button>
           <button class="btn btn-texto" data-acao="exportar-backup" data-rotulo-artefato="Copiar backup (.json)">Exportar backup (.json)</button>
           <button class="btn btn-texto" data-acao="importar-backup">Importar backup</button>
+          <hr>
+          <button class="btn btn-texto" data-acao="exportar-csv" data-rotulo-artefato="Copiar CSV">Exportar CSV</button>
+          <button class="btn btn-texto" data-acao="imprimir" data-somente-arquivo>Imprimir relatório</button>
+          <button class="btn btn-texto" data-acao="tabelas">Tabelas legais</button>
+          <hr>
+          <button class="btn btn-texto" data-acao="inicio-rapido">Início rápido (4 perguntas)</button>
           <button class="btn btn-texto" data-acao="exemplo">Carregar exemplo fictício</button>
           <button class="btn btn-texto btn-perigo" data-acao="limpar">Limpar dados</button>
         </div>
       </details>
+      <button class="btn btn-icone so-largo" data-acao="tabelas" aria-label="Tabelas legais" title="Tabelas legais"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></button>
     </div>
   </div>
-  <nav class="abas" id="abas" role="tablist" aria-label="Etapas"></nav>
 </header>
 
-<main>
-  <section class="painel" id="painel-painel" role="tabpanel" aria-labelledby="aba-painel"></section>
-  <section class="painel" id="painel-perfil" role="tabpanel" aria-labelledby="aba-perfil" hidden></section>
-  <section class="painel" id="painel-receitas" role="tabpanel" aria-labelledby="aba-receitas" hidden></section>
-  <section class="painel" id="painel-despesas" role="tabpanel" aria-labelledby="aba-despesas" hidden></section>
-  <section class="painel" id="painel-tributos" role="tabpanel" aria-labelledby="aba-tributos" hidden></section>
-  <section class="painel" id="painel-folha" role="tabpanel" aria-labelledby="aba-folha" hidden></section>
-  <section class="painel" id="painel-pf" role="tabpanel" aria-labelledby="aba-pf" hidden></section>
-  <section class="painel" id="painel-distribuicao" role="tabpanel" aria-labelledby="aba-distribuicao" hidden></section>
-  <section class="painel" id="painel-cenarios" role="tabpanel" aria-labelledby="aba-cenarios" hidden></section>
-  <section class="painel" id="painel-relatorio" role="tabpanel" aria-labelledby="aba-relatorio" hidden></section>
-  <section class="painel" id="painel-parametros" role="tabpanel" aria-labelledby="aba-parametros" hidden></section>
+<main id="conteudo" tabindex="-1">
+  <section class="area" id="area-resultado" aria-label="Resultado"></section>
+  <section class="area" id="area-dados" aria-label="Dados da simulação" hidden></section>
+  <section class="area" id="area-relatorio" aria-label="Relatório" hidden></section>
 </main>
 
 <footer class="rodape">
-  <p><strong>Privacidade:</strong> todos os cálculos rodam neste navegador. Nenhum dado é enviado a servidores, e não há rastreamento. Os dados ficam no armazenamento local do navegador e podem ser perdidos se os dados do site ou do dispositivo forem apagados: exporte um backup.</p>
+  <p><strong>Privacidade:</strong> todos os cálculos rodam neste navegador. Nenhum dado é enviado a servidores, e não há rastreamento. Os dados ficam no armazenamento local do navegador e podem ser perdidos se os dados do site ou do dispositivo forem apagados: exporte um backup pelo menu Arquivo.</p>
   <p>Ferramenta de apoio à decisão. Não substitui a revisão do contador ou de profissional tributário habilitado. Estimativas não são valores oficiais.</p>
-  <p id="status-dados"></p>
   <p id="versao-param"></p>
 </footer>
 
+<nav class="nav-inferior" aria-label="Áreas">
+  <a href="#resultado" data-area="resultado"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3v18h18"/><path d="M7 15l4-4 3 3 5-6"/></svg>Resultado</a>
+  <a href="#dados" data-area="dados"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 4h6M8 4H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-2"/><path d="M8 11h8M8 15h5"/></svg>Dados</a>
+  <a href="#relatorio" data-area="relatorio"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/></svg>Relatório</a>
+</nav>
+
+<div class="gaveta" id="gaveta" hidden>
+  <div class="gaveta-painel" role="dialog" aria-modal="true" aria-labelledby="gaveta-titulo">
+    <header class="gaveta-topo">
+      <h2 id="gaveta-titulo">Tabelas legais</h2>
+      <button class="btn btn-icone" data-acao="fechar-gaveta" aria-label="Fechar tabelas legais"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    </header>
+    <div class="gaveta-corpo" id="gaveta-corpo"></div>
+  </div>
+</div>
+
+<div class="fundo-modal" id="inicio" hidden><div class="inicio" id="inicio-conteudo" role="dialog" aria-modal="true" aria-labelledby="inicio-titulo"></div></div>
 <input type="file" id="arquivo-backup" accept="application/json,.json" hidden>
 <div class="fundo-modal" id="fundo-modal" hidden><div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="modal-titulo"></div></div>
-<div class="calculando" id="calculando" hidden><div role="status">Calculando cenários…</div></div>
 <div class="notificacao" id="notificacao" role="status" aria-live="polite" hidden></div>
 
 <!--SCRIPTS-->

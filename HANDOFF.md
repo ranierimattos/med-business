@@ -8,18 +8,18 @@ Aplicação web em **um único arquivo HTML**, offline e em português, para pla
 
 O pedido original foi um "prompt mestre" extenso, com 24 seções (cadastro, receitas, despesas, tributos, folha, fator "r", Simples, comparação de regimes, IRPF, dividendos, otimização, sensibilidade, interface, relatório, testes, privacidade, fontes, alertas e entrega). Esta primeira versão cobre todas as seções.
 
-**Fase atual:** redesenho da interface. As 11 abas passam a 3 áreas, separando painel de formulário. A proposta está em um canvas de design aguardando o parecer do usuário (seção 6).
+**Fase atual:** redesenho da interface **implementado** no app real. O canvas foi aprovado pelo usuário em 26/10/2026; as 11 abas viraram 3 áreas (Resultado, Dados, Relatório) + menu Arquivo + Tabelas legais em painel lateral, sem mudança de cálculo no motor.
 
 ## 2. Estado atual
 
 - Repositório: `ranierimattos/med-business` (privado). Branch padrão: `main`.
 - PR #1 (o simulador completo) **mesclada** em `main`. A PR #2 foi uma mesclagem de `main` de volta para a branch antiga, sem alterar arquivos. A branch antiga foi apagada pelo usuário.
-- Branch de trabalho desta sessão: `ccr-9bf84731-bxdfac`, recriada a partir de `main` só para este arquivo. Nada mais pendente nela.
-- Testes: `node --test tests/motor.test.js` → 41/41; `node --test tests/ui.test.js` → 1/1 (Playwright + Chromium).
+- Branch de trabalho: `ccr-9bf84731-bxdfac` (a partir de `main`), com o redesenho commitado e enviado. **Sem PR aberta** (abrir só quando o usuário pedir).
+- Testes: `node --test tests/motor.test.js` → 41/41; `node --test tests/ui.test.js` → 1/1 (Playwright + Chromium, 15 verificações da nova interface).
 - Links:
   - PR #1: https://github.com/ranierimattos/med-business/pull/1
-  - App publicado como página privada (versão de hospedagem, gerada antes dos últimos ajustes de layout): https://claude.ai/artifact/7k7yCKQSfmWBm7yKNfbW7d
-  - **Canvas da nova interface (aguardando parecer):** https://claude.ai/artifact/9DN79EAVXX75UdHQKYpjEE
+  - App publicado como página privada (variante de hospedagem, `dist/artefato/`): https://claude.ai/artifact/7k7yCKQSfmWBm7yKNfbW7d
+  - Canvas da nova interface (**aprovado**): https://claude.ai/artifact/9DN79EAVXX75UdHQKYpjEE
 
 ## 3. O que já foi feito
 
@@ -49,6 +49,18 @@ O pedido original foi um "prompt mestre" extenso, com 24 seções (cadastro, rec
 - `scripts/build.js` gera `dist/simulador-tributario-medico-pj.html` (arquivo único, com CSP que bloqueia rede) e `dist/artefato/...` (variante para hospedagem: sem imprimir nem baixar, copia para a área de transferência).
 - `README.md` (uso, fórmulas, parâmetros, limitações, testes), `docs/RELATORIO-EXEMPLO.md`, `docs/exemplo-resultados.csv` e imagens em `docs/`.
 
+**Redesenho da interface (implementado nesta sessão)**
+- `src/template.html`: topo com Resultado | Dados, **Gerar relatório**, menu **Arquivo** (salvar, carregar, backup, importar, CSV, imprimir, tabelas legais, início rápido, exemplo, limpar) e engrenagem das **Tabelas legais** (painel lateral); no celular, barra inferior Resultado · Dados · Relatório e menu ⋮.
+- `src/ui.js` reescrito:
+  - navegação por endereço (`#resultado/cenarios`, `#dados/3`, `#relatorio`), com Voltar do navegador;
+  - **Resultado**: herói com recomendação gerada a partir da análise e economia; 4 indicadores com comparação ao atual (chave "Comparar com o plano atual"); custo × pró-labore; fator "r" com faixa de anexos; tributos por mês; pró-labore × lucros; plano mês a mês; alertas com link para a etapa/campo de origem (`ORIGEM_ALERTA`). Sub-seções Cenários (tabela ordenada, curvas detalhadas com faixa de incerteza e PJ/PF, cenários de receita, regimes, caixa, cenários salvos), Sensibilidade (tornado, cartões de equilíbrio, ano seguinte) e Memória de cálculo (competência e plano selecionáveis);
+  - **Dados**: 5 etapas (Empresa · Receitas · Folha e custos · Sócio e lucros · Pagamentos), status por etapa a partir dos alertas, modo **Essencial/Completo** (`soC()` marca o que só aparece no Completo e conta os campos escondidos), despesas em lista compacta expansível, painel **Efeito no resultado** (economia, diferença da última alteração, fator "r", qualidade, dica da etapa);
+  - **recálculo automático**: `agendarAnalise()` com espera de 1,2 s nos Dados (150 ms nos controles do Resultado); topo mostra "Resultado desatualizado"/"Recalculando…"; o formulário não é redesenhado durante o cálculo;
+  - **Início rápido**: 4 perguntas com prévia ao vivo (simulação do plano atual + otimizador rápido), aberto na primeira visita e pelo menu Arquivo.
+- `src/estilos.css`: componentes novos com os mesmos tokens claro/escuro; o CSS do menu saiu de `scripts/build.js`.
+- `src/motor.js`: só cinco textos de alerta que citavam abas antigas (nenhuma regra mudou).
+- `tests/ui.test.js` reescrito; `scripts/capturas.js` gera também `docs/dados-etapas.png`; README (seção "Como usar" e testes) atualizado.
+
 **Resultado do exemplo fictício:** Simples, com pró-labore concentrado em jan–jun (R$ 12.871 a R$ 21.621) e mínimo depois. Junho a dezembro passam ao Anexo III, com economia projetada de **R$ 9.301,68/ano** (R$ 96.602,94 contra R$ 105.904,62).
 
 ## 4. Decisões tomadas e por quê
@@ -68,7 +80,11 @@ O pedido original foi um "prompt mestre" extenso, com 24 seções (cadastro, rec
 | Despesas não são variáveis de decisão | Cortar despesa não reduz tributo no Simples/Presumido e aumenta no Real. O efeito é mostrado separado (financeiro × tributário). |
 | Resultados exibidos sempre de `MotorTributario.simular()` | Exigência de que gráfico e relatório usem exatamente os números do motor (coberto por teste de interface). |
 | Interface: fontes do sistema, sem rede, tokens de cor com tema claro/escuro, gráficos com um único eixo cada | Funciona offline; regras de acessibilidade e de visualização de dados. |
-| Redesenho (canvas): 3 áreas (Resultado, Dados, Tabelas legais) + menu Arquivo; Dados em 5 etapas com modo Essencial/Completo e painel "Efeito no resultado" | 11 abas no mesmo nível misturavam resposta, cadastro e referência. A proposta mantém a identidade visual atual para facilitar a migração. |
+| Redesenho (canvas aprovado): 3 áreas (Resultado, Dados, Tabelas legais) + menu Arquivo; Dados em 5 etapas com modo Essencial/Completo e painel "Efeito no resultado" | 11 abas no mesmo nível misturavam resposta, cadastro e referência. A proposta mantém a identidade visual atual para facilitar a migração. |
+| Sócios na etapa 4 (Sócio e lucros), modo Completo | O canvas punha o perfil inteiro na etapa 1, mas sócios e participação só afetam a distribuição de lucros. |
+| Recálculo automático no navegador, sem Web Worker | A análise completa leva cerca de 1 s; um worker exigiria afrouxar a CSP (`worker-src blob:`) e copiar a análise entre threads. O cálculo só roda depois de 1,2 s sem edição. |
+| Fonte do sistema em vez da IBM Plex Sans do canvas | O arquivo único funciona offline e a CSP bloqueia fontes externas. |
+| Gráficos do Resumo simplificados; versão com faixa de incerteza, parcelas PJ/PF e unidade anual/mensal em Cenários | O Resumo segue o canvas; as opções avançadas continuam disponíveis. |
 
 ## 5. Arquivos envolvidos
 
@@ -79,15 +95,15 @@ src/otimizador.js      executar(estado) → análise completa
 src/exportacao.js      CSV
 src/exemplo.js         dados fictícios de demonstração
 src/graficos.js        gráficos SVG (linhas, barras, tornado)
-src/ui.js              interface (11 abas hoje; alvo do redesenho)
+src/ui.js              interface: Resultado, Dados (5 etapas), Relatório, Tabelas legais, Início rápido
 src/estilos.css        estilos (tokens claro/escuro, impressão)
 src/template.html      esqueleto HTML
 scripts/build.js       gera dist/
 scripts/relatorio-exemplo.js, scripts/capturas.js
 tests/motor.test.js    41 testes do motor/otimizador
-tests/ui.test.js       teste de interface (Playwright)
+tests/ui.test.js       teste de interface da nova navegação (Playwright)
 dist/                  arquivos gerados (versionados)
-docs/                  relatório do exemplo, CSV, imagens
+docs/                  relatório do exemplo, CSV, imagens (painel-geral, grafico-otimizacao, dados-etapas)
 ```
 
 Comandos:
@@ -103,35 +119,28 @@ Canvas de design (lido com a ferramenta Artifact, ação `read`, no link da seç
 
 ## 6. Problemas em aberto
 
-1. **Parecer do usuário sobre o canvas da nova interface:** pendente. Ele estava revisando as telas.
-2. **Parâmetros legais não conferidos em fonte oficial.** Conferir no Planalto, na Receita Federal e no Portal do Simples quando houver acesso:
+1. **Parâmetros legais não conferidos em fonte oficial.** Conferir no Planalto, na Receita Federal e no Portal do Simples quando houver acesso:
    - tabela anual do IRPF 2026 (parcelas 4.729,91 / 8.105,85 / 10.904,66);
    - Anexo V e repartições;
    - regra do fator "r" no mês de início (Res. CGSN 140, art. 26, § 6º);
    - vigência da Res. CGSN 190/2026;
    - exclusão dos lucros de transição da base do IRPFM;
    - LC 224/2025 (questionada na ADI 7936).
-3. **2027 é projeção:** IRPF, teto do INSS, salário mínimo e alíquota da CBS ainda não publicados.
-4. **Modelagem simplificada:** IRPFM (redutor do art. 16-B), excesso de sublimite e exclusão do Simples (só alertados), créditos de PIS/Cofins no Lucro Real, uma única pessoa física modelada.
-5. **App publicado como página (7k7yCK…) desatualizado:** gerado antes dos últimos ajustes de layout. Republicar a partir de `dist/artefato/` depois do redesenho. O aviso de "download" nessa publicação vem da função de download presente no código, mas não usada no modo de hospedagem.
-6. **Formato do canvas:** os laços (`sc-for`/`sc-if`) foram tirados de dentro de `<table>`, que virou grade de `div`, para evitar que o navegador reposicione os elementos. Uma tabela estática simples permaneceu na aba Cenários do `Resultado.dc.html`.
+2. **2027 é projeção:** IRPF, teto do INSS, salário mínimo e alíquota da CBS ainda não publicados.
+3. **Modelagem simplificada:** IRPFM (redutor do art. 16-B), excesso de sublimite e exclusão do Simples (só alertados), créditos de PIS/Cofins no Lucro Real, uma única pessoa física modelada.
+4. **Página hospedada (7k7yCK…):** republicada com o redesenho a partir de `dist/artefato/`. O aviso de "download" da publicação vem da função de download presente no código, mas não usada no modo de hospedagem.
+5. **Pequenas diferenças em relação ao canvas:** fonte do sistema; "Comparar com o plano atual" também afeta o fator "r", os tributos por mês e o caixa; a tabela "Plano mês a mês" ganhou a coluna Caixa final; o herói e os textos são gerados a partir da análise (no exemplo, os mesmos do canvas).
 
 ## 7. Próximos passos
 
-1. Receber o parecer do usuário e ajustar o canvas, se pedido.
-2. Implementar o redesenho no app real, sem mexer no motor:
-   - **Navegação:** Resultado | Dados + engrenagem (Tabelas legais) + menu Arquivo; "Gerar relatório" como botão.
-   - **Resultado:** hero com recomendação e economia; 4 indicadores com comparação ao atual; gráfico de custo × pró-labore; fator "r" com faixa de anexos; tributos por mês; pró-labore × lucros; plano mês a mês; alertas com link para a etapa de origem. Sub-seções: Resumo, Cenários, Sensibilidade, Memória de cálculo.
-   - **Dados:** 5 etapas (Empresa · Receitas · Folha e custos · Sócio e lucros · Pagamentos), modo Essencial/Completo (marcar campos essenciais) e painel lateral "Efeito no resultado".
-   - **Recálculo:** análise automática com debounce (hoje cerca de 0,5–1 s) ou indicador de "desatualizada".
-   - **Início rápido:** 4 perguntas para quem abre pela primeira vez.
-3. Atualizar `tests/ui.test.js` para os novos seletores. Manter a verificação de que gráfico e relatório = motor, de que não há rede e de que não há rolagem horizontal a 390 px.
-4. Regerar `dist/`, `docs/`, README (seção "Como usar") e capturas; republicar a página hospedada.
-5. Abrir PR para `main` só quando o usuário pedir.
+1. Receber o retorno do usuário sobre o app redesenhado (página hospedada ou `dist/simulador-tributario-medico-pj.html`) e ajustar.
+2. Abrir PR de `ccr-9bf84731-bxdfac` para `main` quando o usuário pedir.
+3. Conferir os parâmetros legais em fonte oficial quando houver acesso (seção 6, item 1).
+4. Ideias não feitas: navegação por setas entre as sub-seções (hoje só Tab); barra fixa com a economia no celular enquanto se edita os Dados; recálculo em Web Worker se a análise ficar mais lenta.
 
 ## 8. Convenções
 
 - Interface, textos, comentários e documentação em português do Brasil.
 - Commits terminam com as linhas de atribuição indicadas pela sessão; não incluir identificador de modelo em commits, PRs ou código.
-- Fazer commit e push só quando pedido; PR só quando pedido.
+- Commit e push na branch de trabalho ao concluir uma entrega; PR só quando pedido.
 - O usuário clonou o repositório no computador e usa a branch `main`.
