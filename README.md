@@ -3,7 +3,7 @@
 Aplicação web em **um único arquivo HTML** para planejamento financeiro e otimização tributária de médicos que atuam por pessoa jurídica no Brasil. Compara Simples Nacional (com a regra real do fator "r"), Lucro Presumido e Lucro Real e busca o plano de pró-labore e distribuição de lucros com o **menor custo tributário total em 12 meses**: tributos da empresa + INSS + IRPF + IRPFM + custos administrativos incrementais.
 
 - Arquivo pronto: [`dist/simulador-tributario-medico-pj.html`](dist/simulador-tributario-medico-pj.html) (abra no navegador; não precisa de servidor, instalação ou internet).
-- Relatório comparativo do exemplo fictício: [`docs/RELATORIO-EXEMPLO.md`](docs/RELATORIO-EXEMPLO.md) · relatório em PDF, como sai do botão Imprimir: [`docs/relatorio-exemplo.pdf`](docs/relatorio-exemplo.pdf) · resultados em CSV: [`docs/exemplo-resultados.csv`](docs/exemplo-resultados.csv).
+- Relatório comparativo do exemplo (clínica de demonstração): [`docs/RELATORIO-EXEMPLO.md`](docs/RELATORIO-EXEMPLO.md) · relatório em PDF, como sai do botão Imprimir: [`docs/relatorio-exemplo.pdf`](docs/relatorio-exemplo.pdf) · resultados em CSV: [`docs/exemplo-resultados.csv`](docs/exemplo-resultados.csv).
 
 ![Gráfico de otimização: custo total anual por pró-labore mensal](docs/grafico-otimizacao.png)
 
@@ -14,10 +14,12 @@ Aplicação web em **um único arquivo HTML** para planejamento financeiro e oti
 ## 1. Como usar
 
 1. Abra `dist/simulador-tributario-medico-pj.html` em um navegador moderno (Chrome, Edge, Firefox ou Safari, no computador ou no celular).
-2. Na primeira abertura aparece o **Início rápido**: 4 perguntas (receita média por mês, pró-labore atual, salários de empregados e regime atual) com uma prévia ao vivo do custo tributário de hoje. **Ver análise** cria o cadastro com essas respostas; **Preencher tudo em etapas** leva aos Dados; **Abrir o exemplo fictício** mostra uma clínica inventada, identificada como exemplo. O Início rápido pode ser reaberto pelo menu **Arquivo**.
+2. Na primeira abertura aparece o **Início rápido**: 4 perguntas (receita média por mês, pró-labore atual, salários de empregados e regime atual) com uma prévia ao vivo do custo tributário de hoje. **Ver análise** cria o cadastro com essas respostas; **Preencher tudo em etapas** leva aos Dados; **Abrir o exemplo** mostra uma clínica de demonstração. O Início rápido pode ser reaberto pelo menu **Arquivo**.
 3. O resultado é **recalculado automaticamente** cerca de um segundo depois de cada alteração. Enquanto isso, o topo mostra "Resultado desatualizado" ou "Recalculando…".
 
 A interface tem três áreas, mais o menu **Arquivo** e a engrenagem das **Tabelas legais**. No celular, as áreas ficam numa barra inferior e o menu Arquivo no botão ⋮.
+
+**Marca e contato.** O nome do médico ou da clínica, o logotipo (PNG, JPG, WebP ou SVG), o registro profissional, o endereço, o telefone, o e-mail e o site aparecem no topo de todas as telas, no rodapé e no cabeçalho do relatório em PDF. Edite em **Arquivo › Marca e contato** ou clicando no logotipo do topo. Sem logotipo, aparece o símbolo da medicina (bastão de Asclépio); sem nome, o topo mostra "Simulador Tributário Médico PJ". A marca fica salva no navegador separada da simulação: **Limpar dados** e **Carregar exemplo** não a apagam, e o backup (.json) a inclui. O rodapé traz o crédito **ML Soluções** · Desenvolvido por Mattos-Lage Soluções Agênticas - Nexus 2, powered by Claude Opus.
 
 | Área | O que tem |
 |---|---|
@@ -35,13 +37,13 @@ A interface tem três áreas, mais o menu **Arquivo** e a engrenagem das **Tabel
 
 **Tabelas legais.** A engrenagem abre, em painel lateral, as tabelas, fontes, data de consulta, vigência e status de cada parâmetro, e o editor JSON para atualizar valores ou criar um novo ano.
 
-**Arquivo.** Os dados são salvos automaticamente no armazenamento local do navegador, com o horário visível no topo. O menu **Arquivo** reúne **Salvar agora**, **Carregar dados salvos**, **Exportar backup (.json)**, **Importar backup**, **Exportar CSV**, **Imprimir relatório**, **Tabelas legais**, **Início rápido**, **Carregar exemplo fictício** e **Limpar dados** (pede confirmação). Os dados do navegador podem ser perdidos se os dados do site forem apagados: exporte um backup.
+**Arquivo.** Os dados são salvos automaticamente no armazenamento local do navegador, com o horário visível no topo. O menu **Arquivo** reúne **Salvar agora**, **Carregar dados salvos**, **Exportar backup (.json)**, **Importar backup**, **Exportar CSV**, **Imprimir relatório**, **Tabelas legais**, **Marca e contato**, **Início rápido**, **Carregar exemplo** e **Limpar dados** (pede confirmação). Os dados do navegador podem ser perdidos se os dados do site forem apagados: exporte um backup.
 
 **Endereços.** Cada tela tem endereço próprio (`#resultado/cenarios`, `#dados/3`, `#relatorio`), e o botão Voltar do navegador funciona entre elas.
 
 **Exportar.** **Exportar CSV** (separador `;` e vírgula decimal) traz resumo anual atual × recomendado, cenários, pró-labore mensal, detalhe mensal, curva de otimização e status dos parâmetros.
 
-**Privacidade.** O arquivo tem política de segurança de conteúdo que bloqueia qualquer conexão externa. Não há análise, publicidade ou rastreamento. CPF, CNPJ e nome não são necessários.
+**Privacidade.** O arquivo tem política de segurança de conteúdo que bloqueia qualquer conexão externa. Não há análise, publicidade ou rastreamento. CPF, CNPJ e nome não são necessários. O logotipo fica só no navegador (e no backup), reduzido para no máximo 480 px.
 
 ### Desenvolvimento
 
@@ -179,7 +181,7 @@ Os valores completos, URLs e observações estão em **Tabelas legais** (engrena
 - Otimizador: plano mensal igual ao ótimo da força bruta num espaço pequeno; resultado recomendado = simulação completa; respeita caixa; míope ≥ anual; não recomenda regime inelegível; pode concluir que não há vantagem; nunca recomenda algo mais caro que o plano atual.
 - Exportação CSV com totais iguais aos do motor; backup recarregado sem perda.
 
-`node --test tests/ui.test.js` — teste de interface no Chromium: arquivo abre sem erros e **sem nenhuma requisição de rede**; início rápido na primeira abertura; economia do herói = economia do motor; pontos dos gráficos de custo (Resumo e Cenários), ponto do plano recomendado e marcador de menor custo = simulação do motor; sub-seções e endereços do Resultado; relatório com os mesmos números, em 3 folhas, só ele na impressão e PDF do exemplo com 4 páginas (resumo cabe na 1ª); Ctrl+P fora do relatório imprime o relatório e põe o nome do PDF no título; link do alerta leva à etapa de origem; edição nos Dados marca o resultado como desatualizado, o recálculo automático roda e o painel **Efeito no resultado** mostra a diferença calculada pelo motor; modo Completo mostra mais colunas; salvar → recarregar mantém os dados; download do CSV com totais do motor; imprimir chama a impressão; Tabelas legais abrem e fecham; limpar exige confirmação; início rápido gera cadastro e análise; sem rolagem horizontal a 390 px em todas as telas, nos dois modos; na variante hospedada, nenhuma opção de imprimir aparece.
+`node --test tests/ui.test.js` — teste de interface no Chromium: arquivo abre sem erros e **sem nenhuma requisição de rede**; início rápido na primeira abertura; economia do herói = economia do motor; nenhum aviso de "exemplo fictício"; marca com logotipo no topo, no rodapé e no relatório, mantida ao recarregar e ao limpar os dados; crédito no rodapé; pontos dos gráficos de custo (Resumo e Cenários), ponto do plano recomendado e marcador de menor custo = simulação do motor; sub-seções e endereços do Resultado; relatório com os mesmos números, em 3 folhas, só ele na impressão e PDF do exemplo com 4 páginas (resumo cabe na 1ª); Ctrl+P fora do relatório imprime o relatório e põe o nome do PDF no título; link do alerta leva à etapa de origem; edição nos Dados marca o resultado como desatualizado, o recálculo automático roda e o painel **Efeito no resultado** mostra a diferença calculada pelo motor; modo Completo mostra mais colunas; salvar → recarregar mantém os dados; download do CSV com totais do motor; imprimir chama a impressão; Tabelas legais abrem e fecham; limpar exige confirmação; painel Marca e contato sem rolagem horizontal no celular; início rápido gera cadastro e análise; sem rolagem horizontal a 390 px em todas as telas, nos dois modos; na variante hospedada, nenhuma opção de imprimir aparece.
 
 ---
 

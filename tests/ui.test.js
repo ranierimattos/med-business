@@ -15,6 +15,7 @@ try { ({ chromium } = require('playwright')); } catch (e) { chromium = null; }
 const ARQ = path.join(__dirname, '..', 'dist', 'simulador-tributario-medico-pj.html');
 const URL = 'file://' + ARQ;
 const ARQ_HOSPEDADO = path.join(__dirname, '..', 'dist', 'artefato', 'simulador-tributario-medico-pj.html');
+const PNG_1X1 = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==', 'base64');
 
 async function abrirMenu(pagina) {
   if (!(await pagina.$eval('#menu-arquivo', (d) => d.open))) await pagina.click('#menu-arquivo summary');
@@ -46,6 +47,21 @@ test('interface: arquivo único offline, resultado = motor, dados com recálculo
     const heroi = await pagina.$eval('#economia-projetada', (el) => el.textContent);
     const econ = await pagina.evaluate(() => window.MotorTributario.brl(window.SimuladorUI.analise().economia));
     assert.equal(heroi, econ);
+
+    // 2b. Sem avisos de "exemplo fictício"; crédito no rodapé; marca com logotipo no topo e no rodapé
+    assert.equal(await pagina.evaluate(() => /fictíci/i.test(document.body.innerText)), false, 'sem avisos de exemplo fictício');
+    assert.match(await pagina.textContent('#credito'), /^ML Soluções · Desenvolvido por Mattos-Lage Soluções Agênticas - Nexus 2/);
+    assert.equal(await pagina.textContent('#marca-nome'), 'Simulador Tributário Médico PJ');
+    assert.ok(await pagina.$('#marca-logo svg'), 'sem logotipo, aparece o ícone padrão');
+    await pagina.click('#marca-logo');
+    await pagina.waitForSelector('#gaveta:not([hidden]) #marca-campo-nome');
+    await pagina.fill('#marca-campo-nome', 'Clínica Santa Luzia');
+    await pagina.fill('#marca-campo-telefone', '(11) 3000-0000');
+    await pagina.setInputFiles('#arquivo-logo', { name: 'logo.png', mimeType: 'image/png', buffer: PNG_1X1 });
+    await pagina.waitForSelector('#marca-logo.com-logo img');
+    await pagina.keyboard.press('Escape');
+    assert.equal(await pagina.textContent('#marca-nome'), 'Clínica Santa Luzia');
+    assert.match(await pagina.textContent('#rodape-marca'), /Clínica Santa Luzia[\s\S]*\(11\) 3000-0000/);
 
     // 3. Pontos dos gráficos de custo (Resumo e Cenários) = simulação completa do motor
     async function conferirCurva(sel) {
@@ -82,6 +98,9 @@ test('interface: arquivo único offline, resultado = motor, dados com recálculo
     const textoRel = await pagina.$eval('.relatorio', (el) => el.innerText);
     const custoRec = await pagina.evaluate(() => window.MotorTributario.brl(window.SimuladorUI.analise().recomendado.anual.custoTotal));
     assert.ok(textoRel.includes(custoRec), 'custo total recomendado aparece no relatório');
+    assert.ok(textoRel.includes('Clínica Santa Luzia') && textoRel.includes('(11) 3000-0000'), 'marca e contato no cabeçalho do relatório');
+    assert.ok(await pagina.$('.rel-cabecalho .rel-logo img'), 'logotipo no cabeçalho do relatório');
+    assert.match(textoRel, /ML Soluções · Desenvolvido por Mattos-Lage/);
 
     // 5b. Relatório em folhas A4: na impressão só ele aparece, e o resumo cabe na 1ª página
     assert.equal(await pagina.$$eval('.relatorio .folha', (f) => f.length), 3);
@@ -144,6 +163,7 @@ test('interface: arquivo único offline, resultado = motor, dados com recálculo
     await pagina.waitForFunction(() => window.SimuladorUI && window.SimuladorUI.estado());
     assert.equal(await pagina.evaluate(() => window.MotorTributario.num(window.SimuladorUI.estado().receitas.meses[0].consultas)), 30000);
     assert.equal(await pagina.$eval('#inicio', (el) => el.hidden), true);
+    assert.equal(await pagina.textContent('#marca-nome'), 'Clínica Santa Luzia', 'marca salva neste navegador');
 
     // 10. Exportar CSV (download real) com totais do motor
     await pagina.evaluate(() => window.SimuladorUI.executarAnalise());
@@ -177,6 +197,7 @@ test('interface: arquivo único offline, resultado = motor, dados com recálculo
     await pagina.click('#menu-arquivo button[data-acao="limpar"]');
     await pagina.click('[data-modal="sim"]');
     assert.equal(await pagina.evaluate(() => window.SimuladorUI.estado().despesas.length), 0);
+    assert.equal(await pagina.textContent('#marca-nome'), 'Clínica Santa Luzia', 'limpar dados mantém a marca');
 
     // 14. Início rápido: 4 respostas geram um cadastro e uma análise
     await abrirMenu(pagina);
@@ -212,6 +233,11 @@ test('interface: arquivo único offline, resultado = motor, dados com recálculo
     await abrirMenu(pagina);
     await pagina.click('#menu-arquivo button[data-acao="tabelas"]');
     await largura('tabelas legais');
+    await pagina.keyboard.press('Escape');
+    await abrirMenu(pagina);
+    await pagina.click('#menu-arquivo button[data-acao="marca"]');
+    await pagina.waitForSelector('#gaveta:not([hidden]) #marca-campo-nome');
+    await largura('marca e contato');
 
     // 16. Variante hospedada: a impressão é bloqueada pelo quadro, então nenhuma opção de imprimir aparece
     await pagina.setViewportSize({ width: 1280, height: 900 });

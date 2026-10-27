@@ -10,6 +10,11 @@ const raiz = path.join(__dirname, '..');
 (async () => {
   const b = await chromium.launch();
   const p = await b.newPage({ viewport: { width: 1280, height: 900 }, deviceScaleFactor: 1 });
+  // marca de demonstração, sem logotipo (aparece o ícone padrão)
+  await p.addInitScript(() => localStorage.setItem('simulador-tributario-medico-pj:marca:v1', JSON.stringify({
+    nome: 'Clínica Demonstração', registro: 'CRM-SP 000000', endereco: 'Av. Exemplo, 1000 – São Paulo/SP',
+    telefone: '(11) 0000-0000', email: 'contato@clinica.example', site: 'clinica.example', logo: ''
+  })));
   await p.goto('file://' + path.join(raiz, 'dist', 'simulador-tributario-medico-pj.html'));
   await p.click('[data-acao="inicio-exemplo"]');
   await p.waitForFunction(() => window.SimuladorUI && window.SimuladorUI.analise(), null, { timeout: 30000 });
