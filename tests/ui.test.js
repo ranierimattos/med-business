@@ -14,6 +14,7 @@ try { ({ chromium } = require('playwright')); } catch (e) { chromium = null; }
 
 const ARQ = path.join(__dirname, '..', 'dist', 'simulador-tributario-medico-pj.html');
 const URL = 'file://' + ARQ;
+const ARQ_HOSPEDADO = path.join(__dirname, '..', 'dist', 'artefato', 'simulador-tributario-medico-pj.html');
 
 async function abrirMenu(pagina) {
   if (!(await pagina.$eval('#menu-arquivo', (d) => d.open))) await pagina.click('#menu-arquivo summary');
@@ -211,6 +212,14 @@ test('interface: arquivo único offline, resultado = motor, dados com recálculo
     await abrirMenu(pagina);
     await pagina.click('#menu-arquivo button[data-acao="tabelas"]');
     await largura('tabelas legais');
+
+    // 16. Variante hospedada: a impressão é bloqueada pelo quadro, então nenhuma opção de imprimir aparece
+    await pagina.setViewportSize({ width: 1280, height: 900 });
+    await pagina.goto('file://' + ARQ_HOSPEDADO + '#relatorio');
+    await pagina.waitForSelector('.relatorio');
+    await abrirMenu(pagina);
+    assert.equal(await pagina.isVisible('#menu-arquivo [data-acao="imprimir"]'), false, 'menu sem "Imprimir relatório"');
+    assert.equal(await pagina.$('#area-relatorio [data-acao="imprimir"]'), null, 'relatório sem botão de imprimir');
 
     assert.deepEqual(erros, [], 'sem erros de JavaScript');
     assert.deepEqual(rede, [], 'nenhuma requisição de rede');
