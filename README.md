@@ -3,7 +3,7 @@
 Aplicação web em **um único arquivo HTML** para planejamento financeiro e otimização tributária de médicos que atuam por pessoa jurídica no Brasil. Compara Simples Nacional (com a regra real do fator "r"), Lucro Presumido e Lucro Real e busca o plano de pró-labore e distribuição de lucros com o **menor custo tributário total em 12 meses**: tributos da empresa + INSS + IRPF + IRPFM + custos administrativos incrementais.
 
 - Arquivo pronto: [`dist/simulador-tributario-medico-pj.html`](dist/simulador-tributario-medico-pj.html) (abra no navegador; não precisa de servidor, instalação ou internet).
-- Relatório comparativo do exemplo fictício: [`docs/RELATORIO-EXEMPLO.md`](docs/RELATORIO-EXEMPLO.md) · resultados em CSV: [`docs/exemplo-resultados.csv`](docs/exemplo-resultados.csv).
+- Relatório comparativo do exemplo fictício: [`docs/RELATORIO-EXEMPLO.md`](docs/RELATORIO-EXEMPLO.md) · relatório em PDF, como sai do botão Imprimir: [`docs/relatorio-exemplo.pdf`](docs/relatorio-exemplo.pdf) · resultados em CSV: [`docs/exemplo-resultados.csv`](docs/exemplo-resultados.csv).
 
 ![Gráfico de otimização: custo total anual por pró-labore mensal](docs/grafico-otimizacao.png)
 
@@ -23,7 +23,7 @@ A interface tem três áreas, mais o menu **Arquivo** e a engrenagem das **Tabel
 |---|---|
 | **Resultado** | Abre primeiro. **Resumo**: recomendação e economia projetada no topo; custo total, carga sobre a receita, renda líquida e meses no Anexo III, com a comparação com o plano atual (chave **Comparar com o plano atual**); gráfico de custo × pró-labore; fator "r" por mês com a faixa de anexos; tributos por mês; pró-labore × lucros; **plano mês a mês**; alertas, cada um com link para a etapa dos Dados onde se resolve. **Cenários**: comparação de cenários do menor para o maior custo, curvas de custo com faixa de incerteza e parcelas PJ/PF, cenários de receita, regimes disponíveis, caixa da empresa e **Salvar cenário para comparar**. **Sensibilidade**: o que mais mexe no custo, pontos de equilíbrio e efeito no ano seguinte. **Memória de cálculo**: fator "r", alíquota e DAS (ou apuração trimestral) e pessoa física de qualquer competência, do plano recomendado ou do atual. Ano e cenário de receita podem ser trocados no topo da área. |
 | **Dados** | Formulário em 5 etapas, que podem ser preenchidas em qualquer ordem. O modo **Essencial** mostra só os campos que mais pesam no resultado; o modo **Completo** mostra todos. Ao lado, o painel **Efeito no resultado** mostra a economia projetada, quanto a última alteração mudou o custo, o fator "r" do primeiro mês planejado, a qualidade dos dados e uma dica da etapa. |
-| **Relatório** | Botão **Gerar relatório**: diagnóstico, melhor cenário, comparação financeira, plano de ação e limitações, em linguagem para quem não tem formação contábil. **Imprimir** gera PDF pelo navegador. |
+| **Relatório** | Botão **Gerar relatório**: prévia do PDF em folhas A4, em linguagem para quem não tem formação contábil. A 1ª página é o resumo executivo (economia, recomendação, atual × recomendado, tributos por mês e próximos passos); depois vêm o plano mês a mês com o fator "r", os cenários comparados, o plano de ação e as premissas. **Imprimir ou salvar PDF** (ou Ctrl+P em qualquer tela) gera o PDF com cabeçalho, rodapé e número de página; o nome sugerido do arquivo traz o ano e a empresa. |
 
 | Etapa dos Dados | Essencial | Completo acrescenta |
 |---|---|---|
@@ -62,7 +62,7 @@ node scripts/build.js            # gera dist/simulador-tributario-medico-pj.html
 node --test tests/motor.test.js  # testes do motor e do otimizador
 node --test tests/ui.test.js     # teste de interface (Playwright + Chromium)
 node scripts/relatorio-exemplo.js
-node scripts/capturas.js         # imagens de docs/ (Playwright)
+node scripts/capturas.js         # imagens e relatorio-exemplo.pdf de docs/ (Playwright)
 scripts/publicar-demo.sh ../simulador-medico-pj   # publica a versão de teste
 ```
 
@@ -179,7 +179,7 @@ Os valores completos, URLs e observações estão em **Tabelas legais** (engrena
 - Otimizador: plano mensal igual ao ótimo da força bruta num espaço pequeno; resultado recomendado = simulação completa; respeita caixa; míope ≥ anual; não recomenda regime inelegível; pode concluir que não há vantagem; nunca recomenda algo mais caro que o plano atual.
 - Exportação CSV com totais iguais aos do motor; backup recarregado sem perda.
 
-`node --test tests/ui.test.js` — teste de interface no Chromium: arquivo abre sem erros e **sem nenhuma requisição de rede**; início rápido na primeira abertura; economia do herói = economia do motor; pontos dos gráficos de custo (Resumo e Cenários), ponto do plano recomendado e marcador de menor custo = simulação do motor; sub-seções e endereços do Resultado; relatório com os mesmos números; link do alerta leva à etapa de origem; edição nos Dados marca o resultado como desatualizado, o recálculo automático roda e o painel **Efeito no resultado** mostra a diferença calculada pelo motor; modo Completo mostra mais colunas; salvar → recarregar mantém os dados; download do CSV com totais do motor; imprimir chama a impressão; Tabelas legais abrem e fecham; limpar exige confirmação; início rápido gera cadastro e análise; sem rolagem horizontal a 390 px em todas as telas, nos dois modos.
+`node --test tests/ui.test.js` — teste de interface no Chromium: arquivo abre sem erros e **sem nenhuma requisição de rede**; início rápido na primeira abertura; economia do herói = economia do motor; pontos dos gráficos de custo (Resumo e Cenários), ponto do plano recomendado e marcador de menor custo = simulação do motor; sub-seções e endereços do Resultado; relatório com os mesmos números, em 3 folhas, só ele na impressão e PDF do exemplo com 4 páginas (resumo cabe na 1ª); Ctrl+P fora do relatório imprime o relatório e põe o nome do PDF no título; link do alerta leva à etapa de origem; edição nos Dados marca o resultado como desatualizado, o recálculo automático roda e o painel **Efeito no resultado** mostra a diferença calculada pelo motor; modo Completo mostra mais colunas; salvar → recarregar mantém os dados; download do CSV com totais do motor; imprimir chama a impressão; Tabelas legais abrem e fecham; limpar exige confirmação; início rápido gera cadastro e análise; sem rolagem horizontal a 390 px em todas as telas, nos dois modos; na variante hospedada, nenhuma opção de imprimir aparece.
 
 ---
 

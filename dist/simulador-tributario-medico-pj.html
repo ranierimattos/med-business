@@ -199,6 +199,7 @@ textarea { min-height: 220px; font-family: var(--font-mono); font-size: var(--t-
   border-radius: var(--raio-sm); padding: 7px 12px; display: inline-flex; align-items: center; gap: 6px; white-space: nowrap;
 }
 .btn:hover { background: var(--surface-2); }
+.btn[hidden] { display: none; }
 .btn-primario { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
 .btn-primario:hover { background: var(--accent-hover); border-color: var(--accent-hover); }
 .btn-perigo { color: var(--crit); }
@@ -315,20 +316,77 @@ details.memoria > .conteudo { padding: 0 12px 12px; display: grid; gap: 10px; }
 .multiplos .grafico-cartao { display: grid; gap: 6px; min-width: 0; }
 .multiplos h4 { font-size: var(--t-sm); }
 
-/* ------------------------------------------------------------ relatório */
-.relatorio { max-width: 980px; display: grid; gap: 22px; }
-.relatorio section { display: grid; gap: 10px; }
-.relatorio h3 { padding-bottom: 4px; border-bottom: 1px solid var(--line); }
-.relatorio .lead { font-size: var(--t-lg); color: var(--ink); max-width: 70ch; }
-.relatorio ol.plano { padding-left: 1.2em; display: grid; gap: 14px; margin: 0; }
-.relatorio ol.plano li { padding-left: 4px; }
-.relatorio dl { display: grid; grid-template-columns: minmax(140px, max-content) 1fr; gap: 3px 14px; margin: 6px 0 0; font-size: var(--t-sm); }
-.relatorio dt { color: var(--muted); }
-.relatorio dd { margin: 0; min-width: 0; overflow-wrap: anywhere; }
+/* ------------------------------------------------------------ relatório (folhas A4) */
+.relatorio { display: grid; gap: 20px; justify-items: center; min-width: 0; }
+.relatorio > .aviso { width: 100%; max-width: 860px; }
+.folha { width: 100%; max-width: 860px; min-width: 0; background: var(--surface); border: 1px solid var(--line); border-radius: var(--raio); box-shadow: var(--shadow); padding: clamp(18px, 4.5vw, 52px); display: grid; gap: 20px; align-content: start; font-size: var(--t-md); }
+.relatorio h3, .relatorio h4, .relatorio p { margin: 0; }
+.rel-cabecalho { display: grid; gap: 4px; padding-bottom: 14px; border-bottom: 2px solid var(--accent); }
+.rel-sobre { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 6px 12px; font-size: 0.75em; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--accent); }
+.rel-sobre .selo { letter-spacing: 0; text-transform: none; }
+.rel-empresa { font-family: var(--font-display); font-size: 1.75em; font-weight: 700; line-height: 1.15; letter-spacing: -0.01em; margin: 2px 0 0; overflow-wrap: anywhere; }
+.rel-meta { font-size: 0.82em; color: var(--muted); }
+.rel-conclusao { display: grid; grid-template-columns: minmax(0, 15.5em) minmax(0, 1fr); border: 1px solid var(--line); border-radius: var(--raio); overflow: hidden; }
+.rel-economia { background: var(--accent-soft); padding: 16px 18px; display: grid; align-content: center; gap: 3px; }
+.rel-valor { font-family: var(--font-display); font-size: 2.05em; font-weight: 750; line-height: 1.1; color: var(--accent); white-space: nowrap; font-variant-numeric: tabular-nums; }
+.rel-recomendacao { padding: 16px 18px; display: grid; align-content: center; gap: 6px; }
+.rel-recomendacao h3 { font-size: 1.15em; line-height: 1.3; }
+.rel-recomendacao p { color: var(--ink-2); }
+.rel-rotulo { font-size: 0.72em; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: var(--muted); }
+.rel-nota { font-size: 0.85em; color: var(--ink-2); }
+.rel-secao { display: grid; gap: 9px; min-width: 0; }
+.rel-secao > h3 { font-size: 1.1em; padding-bottom: 5px; border-bottom: 1px solid var(--line); display: flex; align-items: baseline; gap: 8px; }
+.rel-secao > h3 .n { color: var(--accent); }
+.rel-secao > h4 { font-size: 0.95em; margin-top: 4px; }
+.rel-secao > p { color: var(--ink-2); font-size: 0.92em; }
+.rel-tabela { font-size: 0.86em; font-variant-numeric: tabular-nums; }
+.rel-tabela thead th { white-space: normal; vertical-align: bottom; line-height: 1.25; }
+.rel-tabela tbody th { font-weight: 500; color: var(--ink); text-align: left; vertical-align: top; }
+.rel-tabela td.num { white-space: nowrap; vertical-align: top; }
+.rel-tabela td.centro { text-align: center; vertical-align: top; }
+.rel-tabela tr.total th, .rel-tabela tr.total td { font-weight: 700; border-top: 1.5px solid var(--ink-2); }
+.rel-tabela tfoot th, .rel-tabela tfoot td { font-weight: 700; border-top: 1.5px solid var(--line-strong); border-bottom: 0; }
+.rel-tabela tr.realizado th, .rel-tabela tr.realizado td { color: var(--muted); }
+.rel-tabela tr.destaque th { background: var(--accent-soft); }
+.rel-tabela tbody tr:last-child th { border-bottom: 0; }
+.rel-comparativo { max-width: 100%; }
+.rel-comparativo td.num { width: 21%; }
+.rel-comparativo tbody th { min-width: 9.5em; }
+.rel-cenarios tbody th { min-width: 11em; }
+.rel-obs { display: block; font-size: 0.86em; font-weight: 400; color: var(--muted); }
+.rel-grafico-topo { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 4px 16px; }
+.rel-grafico-topo p { color: var(--ink-2); font-size: 0.92em; }
+.rel-grafico .legenda { margin: 0; }
+.rel-passos { margin: 0; padding-left: 1.3em; display: grid; gap: 4px; font-weight: 600; }
+.rel-aviso { font-size: 0.8em; color: var(--muted); border-top: 1px solid var(--line); padding-top: 10px; }
+.rel-acoes { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px; }
+.rel-acao { border: 1px solid var(--line); border-radius: var(--raio); padding: 14px 16px; display: grid; gap: 10px; }
+.rel-acao > header { display: flex; gap: 12px; align-items: flex-start; }
+.rel-acao h4 { font-size: 1.02em; margin-bottom: 4px; }
+.rel-acao-n { flex: none; width: 1.8em; height: 1.8em; border-radius: 50%; background: var(--accent); color: var(--accent-ink); display: grid; place-items: center; font-weight: 700; font-size: 0.9em; }
+.rel-acao-numeros { display: grid; grid-template-columns: max-content max-content minmax(0, 1fr); margin: 0; border: 1px solid var(--line); border-radius: var(--raio-sm); background: var(--surface-2); }
+.rel-acao-numeros > div { padding: 8px 12px; border-left: 1px solid var(--line); min-width: 0; }
+.rel-acao-numeros > div:first-child { border-left: 0; }
+.rel-acao-numeros dt { font-size: 0.72em; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: var(--muted); }
+.rel-acao-numeros dd { margin: 2px 0 0; font-weight: 600; font-size: 0.92em; }
+.rel-acao-detalhes { display: grid; grid-template-columns: minmax(8.5em, max-content) minmax(0, 1fr); gap: 5px 14px; margin: 0; font-size: 0.9em; }
+.rel-acao-detalhes dt { color: var(--muted); }
+.rel-acao-detalhes dd { margin: 0; min-width: 0; overflow-wrap: anywhere; }
+.rel-lista { margin: 0; padding-left: 1.1em; display: grid; gap: 5px; font-size: 0.9em; }
+.rel-lista li { overflow-wrap: anywhere; }
+.rel-nivel { display: inline-block; font-size: 0.8em; font-weight: 700; padding: 0 6px; border-radius: 999px; }
+.rel-nivel.critico { background: var(--crit-bg); color: var(--crit); }
+.rel-nivel.atencao { background: var(--warn-bg); color: var(--warn); }
+@media (max-width: 640px) {
+  .rel-conclusao, .rel-acao-numeros, .rel-acao-detalhes { grid-template-columns: minmax(0, 1fr); }
+  .rel-acao-numeros > div { border-left: 0; border-top: 1px solid var(--line); }
+  .rel-acao-numeros > div:first-child { border-top: 0; }
+  .rel-acao-detalhes dd { margin-bottom: 4px; }
+}
 .lista-def { display: grid; grid-template-columns: minmax(120px, max-content) minmax(0, 1fr); gap: 3px 14px; margin: 0; }
 .lista-def dt { color: var(--muted); }
 .lista-def dd { margin: 0; min-width: 0; overflow-wrap: anywhere; }
-@media (max-width: 560px) { .lista-def, .relatorio dl { grid-template-columns: minmax(0, 1fr); } .lista-def dd, .relatorio dd { margin-bottom: 6px; } }
+@media (max-width: 560px) { .lista-def { grid-template-columns: minmax(0, 1fr); } .lista-def dd { margin-bottom: 6px; } }
 .classif { font-size: var(--t-xs); font-weight: 650; padding: 1px 6px; border-radius: 999px; }
 .classif.calculada { background: var(--good-bg); color: var(--good); }
 .classif.estimada { background: var(--info-bg); color: var(--info); }
@@ -357,20 +415,40 @@ footer.rodape {
 
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
 
+/* Impressão: só o relatório, em A4; cabeçalho e rodapé das páginas vêm de #estilo-pagina (ui.js). */
+@page { size: A4; margin: 16mm 15mm 17mm; }
 @media print {
-  :root { --bg: #fff; --surface: #fff; --surface-2: #f2f2f2; --ink: #000; --ink-2: #222; --muted: #555; --line: #ccc; color-scheme: light; }
-  body { background: #fff; font-size: 11pt; }
-  body::before, .topo, .rodape, .nao-imprimir, .notificacao, .fundo-modal, .gaveta, .nav-inferior, .pular { display: none !important; }
+  :root, :root:not([data-theme="light"]), :root[data-theme="dark"] {
+    --bg: #fff; --surface: #fff; --surface-2: #f1f4f2; --surface-3: #e3e9e5;
+    --ink: #13201b; --ink-2: #44534c; --muted: #66746d; --line: #d6ddd8; --line-strong: #b9c4bd;
+    --accent: #0d6b5b; --accent-ink: #fff; --accent-soft: #e3f1ec;
+    --good: #1d7a3a; --good-bg: #e2f3e6; --warn: #8a5a00; --warn-bg: #fdf1d6; --crit: #b3261e; --crit-bg: #fbe4e1; --info: #285c8f; --info-bg: #e3edf8;
+    --anexo-iii: #1d7a3a; --anexo-iii-bg: #dff1e3; --anexo-v: #9a5b00; --anexo-v-bg: #fbeccd;
+    --series-1: #2a78d6; --series-2: #eb6834; --series-3: #1baf7a; --series-4: #eda100; --series-5: #e87ba4; --series-6: #008300; --series-7: #6250d6; --series-8: #e34948;
+    --grid: #e4e8e5; --axis: #b9c4bd; --chart-surface: #fff; --accent-2: #6fb3a3; --azul-claro: #8ab8ec;
+    --shadow: none;
+    color-scheme: light;
+  }
+  body { background: #fff; padding-bottom: 0 !important; }
+  body::before, .topo, .rodape, .nao-imprimir, .notificacao, .fundo-modal, .gaveta, .nav-inferior, .pular, .dica { display: none !important; }
   main { padding: 0; max-width: none; }
-  body { padding-bottom: 0 !important; }
-  .area { display: none !important; }
-  .area.imprimir { display: grid !important; }
-  .bloco, .kpi, .item { break-inside: avoid; border-color: #ccc; }
-  .tabela-rolagem { overflow: visible; border: 0; }
-  table { font-size: 8.5pt; }
+  #conteudo > .area { display: none !important; }
+  #conteudo > #area-relatorio { display: block !important; }
+  .relatorio { display: block; }
+  .folha { display: block; max-width: none; border: 0; border-radius: 0; box-shadow: none; padding: 0; font-size: 9.5pt; }
+  .relatorio .folha > * + * { margin-top: 16px; }
+  .rel-secao { display: block; }
+  .relatorio .rel-secao > * + * { margin-top: 7px; }
+  .relatorio .rel-secao > h4 { margin-top: 12px; }
+  .folha + .folha { break-before: page; }
+  .relatorio, .relatorio * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .rel-secao > h3, .rel-secao > h4, .rel-secao > p, .rel-grafico .legenda { break-after: avoid; }
+  .rel-tabela th, .rel-tabela td { padding: 3.5px 6px; }
+  .rel-conclusao .rel-economia, .rel-conclusao .rel-recomendacao { padding: 12px 16px; }
+  .rel-conclusao, .rel-acao, .rel-grafico, .rel-tabela tr, .rel-lista li { break-inside: avoid; }
+  .tabela-rolagem { overflow: visible; border: 0; border-radius: 0; }
   thead th { position: static; }
-  details.memoria { display: none; }
-  a { color: #000; text-decoration: none; }
+  a { color: inherit; text-decoration: none; }
 }
 .bloco li, .bloco .mono { overflow-wrap: anywhere; }
 
@@ -4268,6 +4346,7 @@ details.mais-campos[open] > summary { margin-bottom: 8px; }
     if (!el || !estado) return;
     try { el.innerHTML = RENDER_AREA[ui.area](); } catch (e) { el.innerHTML = '<div class="aviso critico">Erro ao exibir esta área: ' + esc(e.message) + '. Os dados não foram perdidos.</div>'; if (window.console) console.error(e); }
     if (ui.area === 'resultado') { try { desenharResultado(); } catch (e2) { if (window.console) console.error(e2); } }
+    if (ui.area === 'relatorio') { try { desenharRelatorio(); } catch (e3) { if (window.console) console.error(e3); } }
   }
   function aplicarFocoPendente() {
     if (!focoPendente) return;
@@ -5552,61 +5631,227 @@ details.mais-campos[open] > summary { margin-bottom: 8px; }
 
   // ------------------------------------------------------------ RELATÓRIO
 
+  // Relatório pensado para A4: cada .folha começa uma página na impressão (Imprimir → Salvar como PDF).
+  // Folha 1 é o resumo executivo; tabelas sem "R$" nas células para caber na largura útil de 180 mm.
+
+  function valor0(v) { return brl0(v).replace('R$ ', ''); }
+  function difCelula(v, tipo, fmt) {
+    if (Math.abs(v) < 0.005) return tdn('—', 'muted');
+    return tdn((fmt || sinal)(v), tipo === 'neutro' ? '' : classeSinal(v, tipo === 'renda'));
+  }
+  function nomeArquivoRelatorio() {
+    var ano = analise ? analise.ano : estado.analise.ano;
+    return 'Relatório tributário ' + ano + ' - ' + (estado.empresa.nome || 'empresa não identificada');
+  }
+  function textoCss(s) { return '"' + String(s).replace(/[\\"]/g, '\\$&').replace(/[\r\n]+/g, ' ') + '"'; }
+  // Cabeçalho e rodapé de cada página do PDF (margens da página; a 1ª folha já tem o cabeçalho completo)
+  function atualizarEstiloPagina() {
+    var el = document.getElementById('estilo-pagina');
+    if (!el) { el = document.createElement('style'); el.id = 'estilo-pagina'; document.head.appendChild(el); }
+    var a = analise, e = estado;
+    var fonte = 'font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif; font-size: 7.5pt; color: #6f7d76;';
+    el.textContent = '@page { ' +
+      '@top-left { content: ' + textoCss((e.empresa.nome || 'Empresa não identificada') + ' · Relatório de planejamento tributário ' + (a ? a.ano : e.analise.ano) + (e.meta.exemplo ? ' · dados fictícios' : '')) + '; ' + fonte + ' } ' +
+      '@top-right { content: ' + textoCss('Gerado em ' + new Date().toLocaleDateString('pt-BR')) + '; ' + fonte + ' } ' +
+      '@bottom-left { content: "Estimativa de apoio à decisão, não é valor oficial. Valide com o contador."; ' + fonte + ' } ' +
+      '@bottom-right { content: "Página " counter(page) " de " counter(pages); ' + fonte + ' } } ' +
+      '@page :first { @top-left { content: none; } @top-right { content: none; } }';
+  }
+
   RENDER_AREA.relatorio = function () {
-    var h = '<div class="cabecalho-area nao-imprimir"><div class="titulo-area"><h2>Relatório</h2><p>Texto para quem não tem formação contábil.' + (MODO_ARTEFATO ? '' : ' Use "Imprimir" para gerar PDF pelo navegador.') + '</p></div><div class="linha-acoes">' +
-      '<a class="btn" href="#resultado" data-area="resultado">Voltar ao resultado</a>' + (MODO_ARTEFATO ? '' : '<button class="btn" data-acao="imprimir">Imprimir</button>') + '<button class="btn btn-primario" data-acao="exportar-csv">' + (MODO_ARTEFATO ? 'Copiar CSV' : 'Exportar CSV') + '</button></div></div>';
+    var h = '<div class="cabecalho-area nao-imprimir"><div class="titulo-area"><h2>Relatório</h2><p>' + (MODO_ARTEFATO ? 'Texto para quem não tem formação contábil, organizado em folhas A4.' : 'Prévia do PDF: cada folha abaixo começa uma página A4. Em "Imprimir", escolha "Salvar como PDF".') + '</p></div><div class="linha-acoes">' +
+      '<a class="btn" href="#resultado" data-area="resultado">Voltar ao resultado</a>' + (MODO_ARTEFATO ? '' : '<button class="btn" data-acao="imprimir">Imprimir ou salvar PDF</button>') + '<button class="btn btn-primario" data-acao="exportar-csv">' + (MODO_ARTEFATO ? 'Copiar CSV' : 'Exportar CSV') + '</button></div></div>';
     if (!analise) return h + carregandoHtml();
-    var a = analise, at = a.atual.anual, rc = a.recomendado.anual, e = estado;
-    var P = a.parametros;
+    var a = analise, e = estado, P = a.parametros;
     h += '<article class="relatorio">';
-    h += '<header><h2>Relatório de otimização tributária — ' + esc(e.empresa.nome || 'empresa não identificada') + '</h2><p class="muted small">Ano-calendário ' + a.ano + ' · Gerado em ' + new Date().toLocaleDateString('pt-BR') + ' · Parâmetros legais de ' + P.ano + ' ' + esc(rotuloStatus(P.status)) + (e.meta.exemplo ? ' · DADOS FICTÍCIOS DE EXEMPLO' : '') + '</p></header>';
     if (analiseDesatualizada) h += '<div class="aviso atencao nao-imprimir">Os dados mudaram depois desta análise; o relatório será atualizado em instantes.</div>';
-    h += '<p class="lead">' + esc(a.semVantagemRelevante ? 'Com os dados informados, não há vantagem relevante em mudar regime ou pró-labore: a melhor alternativa economiza ' + brl(Math.max(0, a.economia)) + ' no ano.' : 'A melhor alternativa encontrada reduz o custo tributário total em ' + brl(a.economia) + ' no ano (' + pct(a.economia / Math.max(1, at.custoTotal), 1) + '), mantendo as mesmas receitas e despesas.') + ' Economia projetada, não garantida.</p>';
-    // A
-    h += '<section><h3>A. Diagnóstico atual</h3><dl>' +
-      '<dt>Regime</dt><dd>' + nomeRegime(a.regimeReferencia) + '</dd>' +
-      (a.regimeReferencia === 'simples' ? '<dt>Anexo</dt><dd>' + at.mesesAnexoIII + ' mês(es) no Anexo III e ' + at.mesesAnexoV + ' no Anexo V</dd>' : '') +
-      '<dt>Faturamento</dt><dd>' + brl(at.rb) + ' no ano (média ' + brl(at.rb / 12) + '/mês)</dd>' +
-      '<dt>Despesas operacionais</dt><dd>' + brl(at.despesasOperacionais) + ' + investimentos ' + brl(at.ativoImobilizado) + '</dd>' +
-      '<dt>Pró-labore</dt><dd>' + brl(at.proLabore) + ' no ano</dd>' +
-      '<dt>Fator "r"</dt><dd>de ' + pctR(Math.min.apply(null, a.atual.meses.map(function (m) { return m.fatorR; }))) + ' a ' + pctR(Math.max.apply(null, a.atual.meses.map(function (m) { return m.fatorR; }))) + '</dd>' +
-      '<dt>Tributos</dt><dd>Empresa ' + brl(at.tributosPJ) + ' · INSS ' + brl(at.inss) + ' · IRPF ' + brl(at.irpfDevido) + (at.irpfmAdicional ? ' · IRPFM ' + brl(at.irpfmAdicional) : '') + ' · total ' + brl(at.cargaTributaria) + ' (' + brl(at.cargaTributaria / 12) + '/mês; ' + pct(at.cargaEfetiva, 1) + ' da receita)</dd>' +
-      '<dt>Renda líquida estimada</dt><dd>' + brl(at.rendaLiquidaPF) + ' no ano</dd>' +
-      '<dt>Qualidade dos dados</dt><dd>' + a.qualidade.nota + '/100 (' + a.qualidade.nivel + ')</dd></dl></section>';
-    // B
-    var plano = a.recomendado.proLabore.map(function (v, i) { return M.MESES[i] + ' ' + brl0(v); }).join(' · ');
-    h += '<section><h3>B. Melhor cenário identificado</h3><dl>' +
-      '<dt>Regime recomendado</dt><dd>' + nomeRegime(a.regimeRecomendado) + (a.qualidade.nivel === 'baixa' ? ' (indicativo: dados insuficientes)' : '') + '</dd>' +
-      '<dt>Pró-labore sugerido</dt><dd>' + (a.tipoPlano === 'uniforme' ? brl(a.recomendado.proLabore[11]) + ' por mês' : (a.tipoPlano === 'atual' ? 'manter o plano atual: ' : 'variável: ') + esc(plano)) + '</dd>' +
-      (a.regimeRecomendado === 'simples' ? '<dt>Anexo esperado</dt><dd>' + rc.mesesAnexoIII + ' mês(es) no Anexo III, ' + rc.mesesAnexoV + ' no Anexo V</dd><dt>Fator "r" projetado</dt><dd>' + a.recomendado.meses.map(function (m) { return m.rotulo + ' ' + pctR(m.fatorR); }).join(' · ') + '</dd>' : '') +
-      '<dt>Distribuição de lucros</dt><dd>' + brl(rc.dividendoMedico) + ' ao médico no ano' + (rc.retencaoDividendos ? ' (retenção de ' + brl(rc.retencaoDividendos) + ', recuperável no ajuste)' : '') + '</dd>' +
-      '<dt>Tributos por categoria</dt><dd>' + (a.regimeRecomendado === 'simples' ? 'DAS ' + brl(rc.das) : 'IRPJ ' + brl(rc.irpj) + ' · CSLL ' + brl(rc.csll) + ' · PIS/Cofins/CBS ' + brl(rc.pis + rc.cofins + rc.cbs) + ' · ISS ' + brl(rc.iss) + ' · CPP ' + brl(rc.cpp)) + ' · INSS ' + brl(rc.inss) + ' · IRPF ' + brl(rc.irpfDevido) + (rc.irpfmAdicional ? ' · IRPFM ' + brl(rc.irpfmAdicional) : '') + '</dd>' +
-      '<dt>Custo total anual</dt><dd><strong>' + brl(rc.custoTotal) + '</strong> (tributos ' + brl(rc.cargaTributaria) + ' + custos administrativos ' + brl(rc.custoAdm) + ')</dd>' +
-      '<dt>Renda líquida pessoal</dt><dd>' + brl(rc.rendaLiquidaPF) + ' (' + sinal(rc.rendaLiquidaPF - at.rendaLiquidaPF) + ')</dd>' +
-      '<dt>Caixa na empresa</dt><dd>' + brl(rc.caixaFinalPJ) + ' ao fim do ano; lucro retido ' + brl(rc.lucroRetido) + '</dd></dl></section>';
-    // C
-    h += '<section><h3>C. Comparação financeira</h3>' + comparacaoHtml(a, true) + '</section>';
-    // D
-    h += '<section><h3>D. Plano de ação</h3><ol class="plano">' + a.planoAcao.map(function (p) {
-      var cl = p.classificacao === 'calculada' ? 'calculada' : (p.classificacao === 'estimada' ? 'estimada' : 'hipotese');
-      return '<li><strong>' + esc(p.titulo) + '</strong> <span class="classif ' + cl + '">' + esc(p.classificacao === 'calculada' ? 'Economia calculada' : (p.classificacao === 'estimada' ? 'Economia estimada' : 'Hipótese não validada')) + '</span><dl>' +
-        '<dt>O que alterar</dt><dd>' + esc(p.oque) + '</dd><dt>Por quê</dt><dd>' + esc(p.porque) + '</dd><dt>Economia estimada</dt><dd>' + brl(p.economia) + '/ano</dd><dt>Custo adicional</dt><dd>' + (p.custoAdicional === null ? 'a orçar' : brl(p.custoAdicional) + '/ano') + '</dd>' +
-        '<dt>Quando faz efeito</dt><dd>' + esc(p.quando) + '</dd><dt>Documentos</dt><dd>' + esc(p.documentos) + '</dd><dt>Validar com o contador</dt><dd>' + esc(p.validacao) + '</dd><dt>Riscos</dt><dd>' + esc(p.riscos) + '</dd>' +
-        '<dt>Dados a confirmar</dt><dd>' + (p.pendencias && p.pendencias.length ? esc(p.pendencias.join('; ')) : 'Nenhum') + '</dd></dl></li>';
-    }).join('') + '</ol></section>';
-    // E
-    var lim = [];
-    lim.push('Parâmetros legais de ' + P.ano + ': ' + P.resumoStatus);
-    lim.push('Premissas: tributos pagos na competência; pró-labore pago no próprio mês; folha do fator "r" pelo regime de caixa; DAS calculado com a alíquota efetiva sem arredondamento intermediário; IRPF mensal do gráfico é o imposto anual distribuído pelo pró-labore.');
-    lim.push('Distribuição isenta limitada ao lucro contábil (com escrituração) ou ao lucro presumido menos tributos (sem escrituração).');
-    lim.push('IRPFM e redutor do art. 16-B modelados de forma simplificada; regulamentação em evolução.');
-    lim.push('Lucro Real e CBS (2027) são estimativas; créditos de PIS/Cofins dependem do conceito de insumo.');
-    a.qualidade.itens.filter(function (i) { return !i.ok; }).forEach(function (i) { lim.push('Dado ausente: ' + i.texto + ' — ' + i.efeito); });
-    a.alertas.filter(function (x) { return x.nivel !== 'info'; }).forEach(function (x) { lim.push('Revisão profissional: ' + x.titulo + '. ' + x.detalhe); });
-    h += '<section><h3>E. Limitações e validações necessárias</h3><ul class="small" style="margin:0;padding-left:1.1em;display:grid;gap:4px">' + lim.map(function (l) { return '<li>' + esc(l) + '</li>'; }).join('') + '</ul><p class="small muted">Este relatório apoia a decisão e não substitui a revisão do contador ou de profissional tributário habilitado.</p></section>';
+    h += '<section class="folha" aria-label="Resumo executivo">' + relCabecalho(a, e, P) + relConclusao(a) +
+      '<section class="rel-secao"><h3>Hoje e com a recomendação</h3>' + relComparativo(a) +
+      '<p class="rel-obs">Estimativas para ' + a.ano + ' com os dados informados. Atual: regime e pró-labore praticados hoje. Recomendado: melhor alternativa encontrada.</p></section>' +
+      relGraficoTributos(a) + relPassos(a) + '</section>';
+    h += '<section class="folha" aria-label="Detalhamento">' +
+      '<section class="rel-secao"><h3><span class="n">1</span>Plano mês a mês</h3><p>' + esc(textoPlanoMensal(a)) + '</p>' + relPlanoMensal(a) + '</section>' +
+      relFatorR(a) + '</section>';
+    h += '<section class="folha" aria-label="Cenários, plano de ação e premissas">' +
+      '<section class="rel-secao"><h3><span class="n">2</span>Cenários comparados</h3><p>Custo de cada alternativa no ano, com as mesmas receitas e despesas, do menor para o maior. Valores em R$; na última coluna, negativo significa custo menor que o atual.</p>' + relCenarios(a) + '</section>' +
+      '<section class="rel-secao"><h3><span class="n">3</span>Plano de ação</h3>' + relAcoes(a) + '</section>' + relAnexo(a, P) + '</section>';
     h += '</article>';
     return h;
   };
+
+  function relCabecalho(a, e, P) {
+    var socio = (e.empresa.socios || []).filter(function (s) { return s.analisado; })[0];
+    var meta = [];
+    if (e.empresa.cnpj) meta.push('CNPJ ' + esc(e.empresa.cnpj));
+    if (e.empresa.municipio) meta.push(esc(e.empresa.municipio + (e.empresa.uf ? '/' + e.empresa.uf : '')));
+    if (socio && socio.nome) meta.push(esc(socio.nome));
+    meta.push('Regime atual: ' + esc(nomeRegime(a.regimeReferencia)));
+    return '<header class="rel-cabecalho"><div class="rel-sobre"><span>Relatório de planejamento tributário · ' + a.ano + '</span>' + (e.meta.exemplo ? selo('Dados fictícios de exemplo', 'exemplo') : '') + '</div>' +
+      '<h2 class="rel-empresa">' + esc(e.empresa.nome || 'Empresa não identificada') + '</h2>' +
+      '<p class="rel-meta">' + meta.join(' · ') + '</p>' +
+      '<p class="rel-meta">Gerado em ' + new Date().toLocaleDateString('pt-BR') + ' · Parâmetros legais de ' + P.ano + ' ' + esc(rotuloStatus(P.status)) + ' · Qualidade dos dados: ' + a.qualidade.nota + '/100 (' + esc(a.qualidade.nivel) + ')</p></header>';
+  }
+
+  function relConclusao(a) {
+    var econ = Math.max(0, a.economia), custoAtual = a.atual.anual.custoTotal;
+    return '<section class="rel-conclusao"><div class="rel-economia"><span class="rel-rotulo">' + (a.semVantagemRelevante ? 'Melhor economia encontrada' : 'Economia projetada no ano') + '</span>' +
+      '<strong class="rel-valor">' + brl(econ) + '</strong><span class="rel-nota">' + (econ > 0 && custoAtual > 0 ? pct(econ / custoAtual, 1) + ' do custo tributário atual' : 'sem vantagem relevante') + '</span></div>' +
+      '<div class="rel-recomendacao"><span class="rel-rotulo">Recomendação</span><h3>' + esc(tituloRecomendacao(a)) + '</h3><p>' + esc(explicacaoRecomendacao(a)) + '</p></div></section>';
+  }
+
+  function relComparativo(a) {
+    var at = a.atual, rc = a.recomendado, A = at.anual, R = rc.anual, k0 = a.ctx.k0;
+    var medA = mediaPlanejada(at.proLabore, k0), medR = mediaPlanejada(rc.proLabore, k0);
+    function anexoIII(res) { return res.regime === 'simples' ? res.anual.mesesAnexoIII + ' de ' + (res.anual.mesesAnexoIII + res.anual.mesesAnexoV) : '—'; }
+    function linha(rotulo, va, vr, dif, cls) { return '<tr' + (cls ? ' class="' + cls + '"' : '') + '><th scope="row">' + rotulo + '</th>' + tdn(va) + tdn(vr) + dif + '</tr>'; }
+    function dinheiro(rotulo, va, vr, tipo, cls) { return linha(rotulo, brl(va), brl(vr), difCelula(M.r2(vr - va), tipo), cls); }
+    var mesmoRegime = a.regimeRecomendado === a.regimeReferencia;
+    var linhas = [
+      linha('Regime tributário', esc(nomeRegime(a.regimeReferencia)), esc(nomeRegime(a.regimeRecomendado)), tdn(mesmoRegime ? 'mantém' : 'muda', 'muted')),
+      linha('Pró-labore médio por mês', brl(medA), brl(medR) + (a.tipoPlano === 'variavel' ? '<span class="rel-obs">varia mês a mês</span>' : ''), difCelula(M.r2(medR - medA), 'neutro'))
+    ];
+    if (at.regime === 'simples' || rc.regime === 'simples') {
+      var dIII = (rc.regime === 'simples' ? R.mesesAnexoIII : 0) - (at.regime === 'simples' ? A.mesesAnexoIII : 0);
+      linhas.push(linha('Meses no Anexo III do Simples', anexoIII(at), anexoIII(rc), dIII ? tdn((dIII > 0 ? '+' : '−') + plural(Math.abs(dIII), 'mês', 'meses'), dIII > 0 ? 'positivo' : 'negativo') : tdn('—', 'muted')));
+    }
+    linhas.push(dinheiro(at.regime === 'simples' && rc.regime === 'simples' ? 'Tributos da empresa (DAS)' : 'Tributos da empresa', A.tributosPJ, R.tributosPJ, 'custo'));
+    linhas.push(dinheiro('INSS sobre o pró-labore', A.inss, R.inss, 'custo'));
+    linhas.push(dinheiro(A.irpfmAdicional || R.irpfmAdicional ? 'IRPF e IRPFM' : 'IRPF', A.tributosPF, R.tributosPF, 'custo'));
+    if (A.custoAdm || R.custoAdm) linhas.push(dinheiro('Custos administrativos', A.custoAdm, R.custoAdm, 'custo'));
+    linhas.push(dinheiro('Custo tributário total', A.custoTotal, R.custoTotal, 'custo', 'total'));
+    linhas.push(linha('Carga sobre a receita', pct(A.cargaEfetiva, 1), pct(R.cargaEfetiva, 1), difCelula((R.cargaEfetiva - A.cargaEfetiva) * 100, 'custo', pp)));
+    linhas.push(dinheiro('Renda líquida pessoal', A.rendaLiquidaPF, R.rendaLiquidaPF, 'renda'));
+    linhas.push(dinheiro('Caixa da empresa em dezembro', A.caixaFinalPJ, R.caixaFinalPJ, 'neutro'));
+    return tabela([{ t: 'No ano' }, { t: 'Atual', num: true }, { t: 'Recomendado', num: true }, { t: 'Diferença', num: true }], linhas, { cls: 'rel-tabela rel-comparativo' });
+  }
+
+  function relGraficoTributos(a) {
+    var leg = (a.atual !== a.recomendado ? [{ nome: 'Atual', cor: 'var(--series-2)', tipo: 'area' }] : []).concat([{ nome: 'Recomendado', cor: 'var(--accent)', tipo: 'area' }]);
+    return '<section class="rel-secao rel-grafico"><h3>Tributos pagos a cada mês</h3><div class="rel-grafico-topo"><p>' + (a.recomendado.regime === 'simples' ? 'DAS' : 'Tributos da empresa') + ' + INSS + IRPF (IRPF anual distribuído pelo pró-labore)</p>' + legendaHtml(leg) + '</div><div class="grafico" id="rel-grafico-tributos"></div></section>';
+  }
+
+  function relPassos(a) {
+    return '<section class="rel-secao"><h3>Próximos passos</h3><ol class="rel-passos">' + a.planoAcao.map(function (p) {
+      return '<li>' + esc(p.titulo) + '</li>';
+    }).join('') + '</ol><p class="rel-obs">O que fazer, documentos, riscos e o que validar com o contador em cada passo: seção 3.</p></section>';
+  }
+
+  function textoPlanoMensal(a) {
+    var r = a.recomendado;
+    return 'Pró-labore sugerido para cada mês e o efeito nos tributos e no caixa. Regime: ' + nomeRegime(r.regime) + '. Valores em R$.' +
+      (a.tipoPlano === 'variavel' ? ' Um pró-labore que varia exige ata fixando o valor de cada mês, pagamento efetivo e eSocial/DCTFWeb em dia.' : '') +
+      (r.meses.some(function (m) { return m.realizado; }) ? ' Meses já realizados não mudam.' : '');
+  }
+
+  function relPlanoMensal(a) {
+    var r = a.recomendado, at = a.atual, simples = r.regime === 'simples', R = r.anual;
+    var irR = irpfMensalProjetado(r);
+    var linhas = r.meses.map(function (m, i) {
+      return '<tr' + (m.realizado ? ' class="realizado"' : '') + '><th scope="row">' + esc(m.rotulo) + (m.realizado ? '<span class="rel-obs">realizado</span>' : '') + '</th>' + tdn(valor0(at.proLabore[i]), 'muted') + tdn('<strong>' + valor0(m.proLabore) + '</strong>') +
+        (simples ? tdn(pctR(m.fatorR)) + td(anexoTag(m.anexo), 'centro') : '') + tdn(valor0(m.tributosPJ)) + tdn(valor0(m.inss)) + tdn(valor0(irR[i])) + tdn(valor0(m.dividendoMedico)) + tdn(valor0(m.caixaFinal)) + '</tr>';
+    });
+    var rod = '<tr><th scope="row">Ano</th>' + tdn(valor0(at.anual.proLabore)) + tdn(valor0(R.proLabore)) + (simples ? '<td></td>' + td(R.mesesAnexoIII + ' × III', 'centro') : '') + tdn(valor0(R.tributosPJ)) + tdn(valor0(R.inss)) + tdn(valor0(M.soma(irR))) + tdn(valor0(R.dividendoMedico)) + tdn(valor0(R.caixaFinalPJ)) + '</tr>';
+    var cab = [{ t: 'Mês' }, { t: 'Pró-labore atual', num: true }, { t: 'Pró-labore sugerido', num: true }].concat(simples ? [{ t: 'Fator "r"', num: true }, { t: 'Anexo', centro: true }] : [])
+      .concat([{ t: simples ? 'DAS' : 'Tributos da empresa', num: true }, { t: 'INSS', num: true }, { t: 'IRPF projetado', num: true }, { t: 'Lucros ao médico', num: true }, { t: 'Caixa no fim do mês', num: true }]);
+    return tabela(cab, linhas, { cls: 'rel-tabela rel-mensal', rodape: rod });
+  }
+
+  function relFatorR(a) {
+    var fr = resFatorR(a);
+    if (!fr) return '';
+    var leg = (a.atual.regime === 'simples' && a.atual !== fr ? [{ nome: 'Atual', cor: 'var(--series-2)' }] : []).concat([{ nome: fr === a.recomendado ? 'Recomendado' : 'Atual', cor: fr === a.recomendado ? 'var(--accent)' : 'var(--series-2)' }]);
+    return '<section class="rel-secao rel-grafico"><h4>Fator "r" por mês</h4><p>Folha dos últimos 12 meses dividida pela receita dos últimos 12 meses. A partir de 28%, o mês é tributado no Anexo III, mais barato que o Anexo V.</p>' + legendaHtml(leg) + '<div class="grafico" id="rel-grafico-fr"></div></section>';
+  }
+
+  function relCenarios(a) {
+    var lista = a.cenarios.slice().sort(function (x, y) { return x.custoTotal - y.custoTotal; });
+    var linhas = lista.map(function (c) {
+      var det = [esc(c.regra)];
+      if (c.regime === 'simples') det.push(c.mesesIII + ' de ' + (c.mesesIII + c.mesesV) + ' meses no Anexo III');
+      if (!c.viavel) det.push('<strong class="negativo">caixa insuficiente</strong>');
+      return '<tr class="' + (c.nome === 'Cenário otimizado' ? 'destaque' : '') + '"><th scope="row"><strong>' + esc(c.nome) + '</strong><span class="rel-obs">' + det.join(' · ') + '</span></th>' +
+        tdn(valor0(c.proLaboreMedio)) + tdn(valor0(c.das + c.outros)) + tdn(valor0(c.inss)) + tdn(valor0(c.irpf + c.irpfm)) + tdn(valor0(c.custoAdm)) + tdn('<strong>' + valor0(c.custoTotal) + '</strong>') + tdn(valor0(c.rendaLiquida)) +
+        (c.difAnual === undefined ? tdn('—', 'muted') : difCelula(c.difAnual, 'custo', function (v) { return sinal0(v).replace('R$ ', ''); })) + '</tr>';
+    });
+    return tabela([{ t: 'Cenário' }, { t: 'Pró-labore médio/mês', num: true }, { t: 'Tributos da empresa', num: true }, { t: 'INSS', num: true }, { t: 'IRPF e IRPFM', num: true }, { t: 'Custos adm.', num: true }, { t: 'Custo total', num: true }, { t: 'Renda líquida', num: true }, { t: 'Diferença no ano', num: true }], linhas, { cls: 'rel-tabela rel-cenarios' });
+  }
+
+  function relAcoes(a) {
+    return '<ol class="rel-acoes">' + a.planoAcao.map(function (p, i) {
+      var cl = p.classificacao === 'calculada' ? 'calculada' : (p.classificacao === 'estimada' ? 'estimada' : 'hipotese');
+      var custo = p.custoAdicional === null ? 'a orçar' : (p.custoAdicional > 0 ? brl(p.custoAdicional) + '/ano' : 'nenhum');
+      return '<li class="rel-acao"><header><span class="rel-acao-n" aria-hidden="true">' + (i + 1) + '</span><div><h4>' + esc(p.titulo) + '</h4><span class="classif ' + cl + '">' + esc(p.classificacao === 'calculada' ? 'Economia calculada' : (p.classificacao === 'estimada' ? 'Economia estimada' : 'Hipótese não validada')) + '</span></div></header>' +
+        '<dl class="rel-acao-numeros"><div><dt>Economia</dt><dd>' + (p.economia > 0 ? brl(p.economia) + '/ano' : '—') + '</dd></div><div><dt>Custo adicional</dt><dd>' + custo + '</dd></div><div><dt>Quando faz efeito</dt><dd>' + esc(p.quando) + '</dd></div></dl>' +
+        (p.economia > 0 && p.custoAdicional > 0 ? '<p class="rel-obs">O custo adicional já está descontado da economia.</p>' : '') +
+        '<dl class="rel-acao-detalhes"><dt>O que fazer</dt><dd>' + esc(p.oque) + '</dd><dt>Por quê</dt><dd>' + esc(p.porque) + '</dd><dt>Documentos</dt><dd>' + esc(p.documentos) + '</dd>' +
+        '<dt>Validar com o contador</dt><dd>' + esc(p.validacao) + '</dd><dt>Riscos</dt><dd>' + esc(p.riscos) + '</dd>' + (p.pendencias && p.pendencias.length ? '<dt>Dados a confirmar</dt><dd>' + esc(p.pendencias.join('; ')) + '</dd>' : '') + '</dl></li>';
+    }).join('') + '</ol>';
+  }
+
+  function relAnexo(a, P) {
+    var nome = { critico: 'Crítico', atencao: 'Atenção' };
+    var revisar = a.alertas.filter(function (x) { return x.nivel !== 'info'; });
+    var ausentes = a.qualidade.itens.filter(function (i) { return !i.ok; });
+    var premissas = [
+      'Parâmetros legais de ' + P.ano + ': ' + P.resumoStatus,
+      'Tributos pagos na competência; pró-labore pago no próprio mês; folha do fator "r" pelo regime de caixa; DAS calculado com a alíquota efetiva sem arredondamento intermediário.',
+      'O IRPF mensal do plano é o imposto anual distribuído pelo pró-labore; o IRRF retido na fonte é antecipação.',
+      'Distribuição isenta limitada ao lucro contábil (com escrituração) ou ao lucro presumido menos tributos (sem escrituração).',
+      'IRPFM e redutor do art. 16-B modelados de forma simplificada; regulamentação em evolução.',
+      'Lucro Real e CBS (2027) são estimativas; créditos de PIS/Cofins dependem do conceito de insumo.'
+    ];
+    return '<section class="rel-secao"><h3><span class="n">4</span>Premissas e pontos de revisão</h3>' +
+      '<h4>Revisar com o contador</h4>' + (revisar.length ? '<ul class="rel-lista">' + revisar.map(function (x) { return '<li><span class="rel-nivel ' + x.nivel + '">' + nome[x.nivel] + '</span> <strong>' + esc(x.titulo) + '.</strong> ' + esc(x.detalhe) + '</li>'; }).join('') + '</ul>' : '<p>Nenhum ponto crítico ou de atenção com os dados informados.</p>') +
+      '<h4>Dados ausentes</h4>' + (ausentes.length ? '<ul class="rel-lista">' + ausentes.map(function (i) { return '<li><strong>' + esc(i.texto) + ':</strong> ' + esc(i.efeito) + '</li>'; }).join('') + '</ul>' : '<p>Nenhum: todos os itens que medem a qualidade dos dados foram preenchidos.</p>') +
+      '<h4>Premissas do cálculo</h4><ul class="rel-lista">' + premissas.map(function (l) { return '<li>' + esc(l) + '</li>'; }).join('') + '</ul>' +
+      '<p class="rel-aviso">Este relatório apoia a decisão e não substitui a revisão do contador ou de profissional tributário habilitado. Cálculos feitos no navegador, sem envio de dados.</p></section>';
+  }
+
+  function desenharRelatorio() {
+    if (!analise) return;
+    var a = analise, r = a.recomendado, at = a.atual, meses = r.meses.map(function (m) { return M.MESES[m.k - 1]; });
+    var c1 = document.getElementById('rel-grafico-tributos');
+    if (c1) {
+      var irR = irpfMensalProjetado(r), irA = irpfMensalProjetado(at);
+      var totR = r.meses.map(function (m, i) { return M.r2(m.tributosPJ + m.inss + irR[i]); });
+      var totA = at.meses.map(function (m, i) { return M.r2(m.tributosPJ + m.inss + irA[i]); });
+      G.barras(c1, {
+        titulo: 'Tributos pagos a cada mês', largura: 680, altura: 160, margem: { l: 56, t: 12 }, categorias: meses, y: { formato: G.compacto },
+        series: (at !== r ? [{ nome: 'Atual', cor: 'var(--series-2)', valores: totA }] : []).concat([{ nome: 'Recomendado', cor: 'var(--accent)', valores: totR }]),
+        dica: function (i) { return dicaMes(r, i, (at !== r ? [['Atual', brl(totA[i]), 'var(--series-2)']] : []).concat([['Recomendado', brl(totR[i]), 'var(--accent)']])); }
+      });
+    }
+    var c2 = document.getElementById('rel-grafico-fr'), fr = resFatorR(a);
+    if (c2 && fr) {
+      var comAtual = at.regime === 'simples' && at !== fr;
+      var serie = function (res, id, nome, cor, largura) { return { id: id, nome: nome, cor: cor, largura: largura, marcadores: true, pontos: res.meses.map(function (m) { return { x: m.k, y: m.ativo ? m.fatorR : NaN }; }) }; };
+      var series = (comAtual ? [serie(at, 'a', 'Atual', 'var(--series-2)', 2)] : []).concat([serie(fr, 'r', fr === r ? 'Recomendado' : 'Atual', fr === r ? 'var(--accent)' : 'var(--series-2)', 3)]);
+      G.linhas(c2, {
+        titulo: 'Fator r por mês', largura: 680, altura: 170, margem: { l: 44, b: 28, r: 12, t: 12 },
+        x: { min: 1, max: 12, ticks: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], formato: function (k) { return M.MESES[k - 1]; } },
+        y: { min: 0, formato: function (v) { return Math.round(v * 100) + '%'; } },
+        referenciasH: [{ y: 0.28, rotulo: '28%: Anexo III' }], series: series, xs: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+        dica: function (i) { return dicaMes(fr, i, series.map(function (s) { var res = s.id === 'a' ? at : fr; return [s.nome, pctR(res.meses[i].fatorR) + ' · ' + (res.meses[i].anexo ? 'Anexo ' + res.meses[i].anexo : '—'), s.cor]; })); }
+      });
+    }
+    atualizarEstiloPagina();
+  }
+
+  // Ctrl+P em qualquer área imprime o relatório; o título vira o nome sugerido do PDF.
+  var tituloAntesImpressao = null;
+  function antesDeImprimir() {
+    if (!estado || !analise) return;
+    if (ui.area !== 'relatorio') {
+      document.getElementById('area-relatorio').innerHTML = RENDER_AREA.relatorio();
+      desenharRelatorio();
+    }
+    tituloAntesImpressao = document.title;
+    document.title = nomeArquivoRelatorio();
+  }
+  function depoisDeImprimir() {
+    if (tituloAntesImpressao !== null) { document.title = tituloAntesImpressao; tituloAntesImpressao = null; }
+    if (ui.area !== 'relatorio') document.getElementById('area-relatorio').innerHTML = '';
+  }
 
   // ------------------------------------------------------------ TABELAS LEGAIS (painel lateral)
 
@@ -5822,10 +6067,7 @@ details.mais-campos[open] > summary { margin-bottom: 8px; }
   }
   function imprimir() {
     if (!analise) { notificar('Aguarde o cálculo terminar.'); return; }
-    if (ui.area !== 'relatorio') navegar('relatorio');
-    var p = document.getElementById('area-relatorio');
-    p.classList.add('imprimir');
-    setTimeout(function () { window.print(); setTimeout(function () { p.classList.remove('imprimir'); }, 500); }, 60);
+    setTimeout(function () { window.print(); }, 60);
   }
 
   function abrirModal(titulo, corpo, botoes, aoEscolher) {
@@ -6078,6 +6320,8 @@ details.mais-campos[open] > summary { margin-bottom: 8px; }
     document.addEventListener('focusout', aoSairCampo);
     document.addEventListener('toggle', aoAlternarDetalhes, true);
     window.addEventListener('hashchange', aoMudarHash);
+    window.addEventListener('beforeprint', antesDeImprimir);
+    window.addEventListener('afterprint', depoisDeImprimir);
     var timerRedim = null, larguraAnterior = window.innerWidth;
     window.addEventListener('resize', function () {
       clearTimeout(timerRedim);

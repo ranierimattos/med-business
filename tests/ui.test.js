@@ -14,6 +14,7 @@ try { ({ chromium } = require('playwright')); } catch (e) { chromium = null; }
 
 const ARQ = path.join(__dirname, '..', 'dist', 'simulador-tributario-medico-pj.html');
 const URL = 'file://' + ARQ;
+const ARQ_HOSPEDADO = path.join(__dirname, '..', 'dist', 'artefato', 'simulador-tributario-medico-pj.html');
 
 async function abrirMenu(pagina) {
   if (!(await pagina.$eval('#menu-arquivo', (d) => d.open))) await pagina.click('#menu-arquivo summary');
@@ -82,9 +83,30 @@ test('interface: arquivo único offline, resultado = motor, dados com recálculo
     const custoRec = await pagina.evaluate(() => window.MotorTributario.brl(window.SimuladorUI.analise().recomendado.anual.custoTotal));
     assert.ok(textoRel.includes(custoRec), 'custo total recomendado aparece no relatório');
 
+    // 5b. Relatório em folhas A4: na impressão só ele aparece, e o resumo cabe na 1ª página
+    assert.equal(await pagina.$$eval('.relatorio .folha', (f) => f.length), 3);
+    await pagina.emulateMedia({ media: 'print' });
+    const impresso = await pagina.evaluate(() => [getComputedStyle(document.querySelector('#area-relatorio')).display, getComputedStyle(document.querySelector('.topo')).display, document.querySelector('.rel-grafico .legenda .chave').getBoundingClientRect().width]);
+    assert.deepEqual(impresso.slice(0, 2), ['block', 'none']);
+    assert.ok(impresso[2] > 0, 'legenda do gráfico visível na impressão');
+    await pagina.emulateMedia({ media: null });
+    const pdf = await pagina.pdf({ preferCSSPageSize: true });
+    const paginasPdf = (pdf.toString('latin1').match(/\/Type\s*\/Page[^s]/g) || []).length;
+    assert.equal(paginasPdf, 4, 'exemplo: resumo (1 página), plano mês a mês (1), cenários e plano de ação (2)');
+
     // 6. Alerta leva à etapa de origem nos Dados
     await pagina.click('.topo a[data-area="resultado"]');
     await pagina.click('[data-sub="resumo"]');
+
+    // 6b. Ctrl+P fora do relatório também imprime o relatório; o título vira o nome sugerido do PDF
+    const tituloPagina = await pagina.title();
+    await pagina.evaluate(() => window.dispatchEvent(new Event('beforeprint')));
+    assert.ok(await pagina.$('#area-relatorio .relatorio .folha'));
+    assert.match(await pagina.title(), /^Relatório tributário \d{4} - /);
+    await pagina.evaluate(() => window.dispatchEvent(new Event('afterprint')));
+    assert.equal(await pagina.title(), tituloPagina);
+    assert.equal(await pagina.$('#area-relatorio .relatorio'), null);
+
     await pagina.click('[data-alerta="darf_sem_codigo"]');
     assert.equal(await pagina.evaluate(() => location.hash), '#dados/5');
     assert.equal(await pagina.textContent('#etapa-titulo'), '5. Pagamentos');
@@ -190,6 +212,14 @@ test('interface: arquivo único offline, resultado = motor, dados com recálculo
     await abrirMenu(pagina);
     await pagina.click('#menu-arquivo button[data-acao="tabelas"]');
     await largura('tabelas legais');
+
+    // 16. Variante hospedada: a impressão é bloqueada pelo quadro, então nenhuma opção de imprimir aparece
+    await pagina.setViewportSize({ width: 1280, height: 900 });
+    await pagina.goto('file://' + ARQ_HOSPEDADO + '#relatorio');
+    await pagina.waitForSelector('.relatorio');
+    await abrirMenu(pagina);
+    assert.equal(await pagina.isVisible('#menu-arquivo [data-acao="imprimir"]'), false, 'menu sem "Imprimir relatório"');
+    assert.equal(await pagina.$('#area-relatorio [data-acao="imprimir"]'), null, 'relatório sem botão de imprimir');
 
     assert.deepEqual(erros, [], 'sem erros de JavaScript');
     assert.deepEqual(rede, [], 'nenhuma requisição de rede');
