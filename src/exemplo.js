@@ -15,7 +15,7 @@
     e.analise.reservaCaixaMinima = '10000';
     e.analise.incrementoProLabore = 250;
 
-    e.empresa.nome = 'EXEMPLO FICTÍCIO — Clínica Demonstração Ltda.';
+    e.empresa.nome = 'Clínica Demonstração Ltda.';
     e.empresa.municipio = 'Cidade Exemplo';
     e.empresa.uf = 'SP';
     e.empresa.dataAbertura = '2023-03-01';
@@ -23,7 +23,7 @@
     e.empresa.cnaePrincipal = '8630-5/03';
     e.empresa.cnaesSecundarios = '8630-5/02';
     e.empresa.naturezaJuridica = 'ltda';
-    e.empresa.socios = [{ nome: 'Dra. Exemplo (fictícia)', participacao: 100, analisado: true, residenteExterior: false }];
+    e.empresa.socios = [{ nome: 'Dra. Exemplo', participacao: 100, analisado: true, residenteExterior: false }];
     e.empresa.temEmpregados = 'sim';
     e.empresa.regimeAtual = 'simples';
     e.empresa.regimeAnoAnterior = 'simples';

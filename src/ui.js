@@ -12,6 +12,8 @@
   var CHAVE = 'simulador-tributario-medico-pj:estado:v1';
   var CHAVE_PARAM = 'simulador-tributario-medico-pj:parametros:v1';
   var CHAVE_UI = 'simulador-tributario-medico-pj:ui:v2';
+  var CHAVE_MARCA = 'simulador-tributario-medico-pj:marca:v1';
+  var NOME_PRODUTO = 'Simulador Tributário Médico PJ';
   var MODO_ARTEFATO = !!window.__MODO_ARTEFATO__;
   var esc = G.esc, brl = M.brl, num = M.num, n0 = M.n0;
 
@@ -109,6 +111,116 @@
   }
   function uiSalvar() {
     gravarLocal(CHAVE_UI, { area: ui.area, sub: ui.sub, etapa: ui.etapa, modo: ui.modo, comparar: ui.comparar, inicioVisto: ui.inicioVisto });
+  }
+
+  // ------------------------------------------------------------ marca (nome, logotipo e contato do médico ou da clínica)
+  // Fica fora do estado da simulação: não é apagada por "Limpar dados" nem pelo exemplo, e vai junto no backup.
+
+  var CAMPOS_MARCA = [
+    ['nome', 'Nome do médico ou da clínica', 'Ex.: Clínica Santa Luzia'], ['registro', 'Registro profissional', 'Ex.: CRM-SP 123456'],
+    ['endereco', 'Endereço', 'Rua, número, bairro, cidade/UF'], ['telefone', 'Telefone', '(00) 0000-0000'],
+    ['email', 'E-mail', 'contato@...'], ['site', 'Site', 'www....']
+  ];
+  var CREDITO = 'Desenvolvido por Mattos-Lage Soluções Agênticas - Nexus 2, powered by Claude Opus.';
+  var marca = normalizarMarca(lerLocal(CHAVE_MARCA));
+
+  function normalizarMarca(m) {
+    var r = {};
+    CAMPOS_MARCA.forEach(function (c) { r[c[0]] = m && typeof m[c[0]] === 'string' ? m[c[0]] : ''; });
+    r.logo = m && typeof m.logo === 'string' && /^data:image\/(png|jpeg|webp|svg\+xml)[;,]/.test(m.logo) ? m.logo : '';
+    return r;
+  }
+  function salvarMarca() { return gravarLocal(CHAVE_MARCA, marca); }
+  var timerMarca = null;
+  function salvarMarcaDepois() {
+    clearTimeout(timerMarca);
+    timerMarca = setTimeout(function () {
+      if (!salvarMarca()) notificar('O navegador bloqueou o armazenamento da marca. Exporte um backup .json pelo menu Arquivo.');
+      if (ui.area === 'relatorio') renderizarArea();
+    }, 600);
+  }
+  function nomeMarca() { return marca.nome.trim() || NOME_PRODUTO; }
+  function contatoMarca(campos) { return (campos || ['registro', 'endereco', 'telefone', 'email', 'site']).map(function (k) { return marca[k].trim(); }).filter(Boolean); }
+
+  // Bastão de Asclépio: a cobra passa à frente do bastão (máscara b) e por trás dele (máscara a).
+  var nIcone = 0;
+  function iconeMedicina(tam) {
+    var id = 'im' + (++nIcone);
+    var frente = 'M9.6 21.3C9.6 19.9 15.2 20 15.2 18.6M8.8 15.6C8.8 14 15.2 14.2 15.2 12.6M8.8 9.6C8.8 8 13 7.4 14.2 6.6';
+    var tras = 'M15.2 18.6C15.2 17.2 8.8 17.2 8.8 15.6M15.2 12.6C15.2 11.2 8.8 11.2 8.8 9.6';
+    return '<svg width="' + tam + '" height="' + tam + '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" aria-hidden="true">' +
+      '<defs><mask id="' + id + 'a" maskUnits="userSpaceOnUse"><rect width="24" height="24" fill="#fff"/><rect x="10.2" width="3.6" height="24" fill="#000"/></mask>' +
+      '<mask id="' + id + 'b" maskUnits="userSpaceOnUse"><rect width="24" height="24" fill="#fff"/><path d="' + frente + '" stroke="#000" stroke-width="3.6"/></mask></defs>' +
+      '<path d="' + tras + '" stroke-width="1.5" mask="url(#' + id + 'a)"/><path d="M12 2.8V22" stroke-width="1.9" mask="url(#' + id + 'b)"/>' +
+      '<path d="' + frente + '" stroke-width="1.5"/><ellipse cx="15.1" cy="6.1" rx="1.6" ry="1.05" transform="rotate(-28 15.1 6.1)" fill="currentColor" stroke="none"/></svg>';
+  }
+  // Logotipo enviado, ou o ícone padrão num quadrado na cor de destaque
+  function logoHtml(cls, tamIcone) {
+    if (marca.logo) return '<span class="' + cls + ' com-logo"><img src="' + esc(marca.logo) + '" alt="' + esc('Logotipo' + (marca.nome.trim() ? ' de ' + marca.nome.trim() : '')) + '"></span>';
+    return '<span class="' + cls + ' icone-padrao">' + iconeMedicina(tamIcone) + '</span>';
+  }
+
+  function aplicarMarca() {
+    var l = document.getElementById('marca-logo');
+    if (l) {
+      l.innerHTML = marca.logo ? '<img src="' + esc(marca.logo) + '" alt="">' : iconeMedicina(24);
+      l.classList.toggle('com-logo', !!marca.logo);
+    }
+    var n = document.getElementById('marca-nome');
+    if (n) n.textContent = nomeMarca();
+    var r = document.getElementById('rodape-marca'), contato = contatoMarca();
+    if (r) {
+      r.hidden = !(marca.nome.trim() || contato.length || marca.logo);
+      r.innerHTML = r.hidden ? '' : logoHtml('rodape-logo', 22) + '<div><strong>' + esc(nomeMarca()) + '</strong>' + (contato.length ? '<span>' + contato.map(esc).join(' · ') + '</span>' : '') + '</div>';
+    }
+    atualizarCabecalho();
+  }
+
+  function marcaHtml() {
+    return '<p class="small">Aparece no topo de todas as telas, no rodapé e no cabeçalho do relatório em PDF. Fica salva neste navegador, separada dos dados da simulação: não é apagada por "Limpar dados" nem ao carregar o exemplo, e vai junto no backup (.json).</p>' +
+      '<section class="bloco"><header><h3>Logotipo</h3><p>PNG, JPG, WebP ou SVG. Sem logotipo, aparece o símbolo da medicina (bastão de Asclépio).</p></header>' +
+      '<div class="marca-editor-logo">' + logoHtml('marca-previa', 40) + '<div class="linha-acoes"><button type="button" class="btn" data-acao="marca-logo">' + (marca.logo ? 'Trocar logotipo' : 'Enviar logotipo') + '</button>' +
+      (marca.logo ? '<button type="button" class="btn btn-texto btn-perigo" data-acao="marca-remover-logo">Remover logotipo</button>' : '') + '</div></div></section>' +
+      '<section class="bloco"><header><h3>Nome e contato</h3><p>Todos opcionais. Sem nome, o topo mostra "' + NOME_PRODUTO + '".</p></header><div class="campos">' +
+      CAMPOS_MARCA.map(function (c) {
+        return '<div class="campo"><label for="marca-campo-' + c[0] + '">' + c[1] + '</label><input type="text"' + (c[0] === 'email' ? ' inputmode="email"' : (c[0] === 'site' ? ' inputmode="url"' : '')) + ' id="marca-campo-' + c[0] + '" data-marca="' + c[0] + '" value="' + esc(marca[c[0]]) + '" placeholder="' + esc(c[2]) + '" autocomplete="off"></div>';
+      }).join('') + '</div></section>';
+  }
+
+  // Imagens grandes são reduzidas (lado maior de até 480 px) para caber no armazenamento do navegador.
+  function lerLogo(arquivo) {
+    if (!/^image\/(png|jpeg|webp|svg\+xml)$/.test(arquivo.type)) { notificar('Use uma imagem PNG, JPG, WebP ou SVG.'); return; }
+    if (arquivo.size > 5 * 1024 * 1024) { notificar('Imagem muito grande: use uma de até 5 MB.'); return; }
+    var r = new FileReader();
+    r.onload = function () {
+      var url = r.result;
+      if (arquivo.type === 'image/svg+xml') {
+        if (url.length > 400000) { notificar('SVG muito grande: use um de até 300 KB.'); return; }
+        definirLogo(url);
+        return;
+      }
+      var img = new Image();
+      img.onload = function () {
+        var escala = Math.min(1, 480 / Math.max(img.naturalWidth, img.naturalHeight));
+        if (escala === 1 && url.length < 400000) { definirLogo(url); return; }
+        var c = document.createElement('canvas');
+        c.width = Math.max(1, Math.round(img.naturalWidth * escala));
+        c.height = Math.max(1, Math.round(img.naturalHeight * escala));
+        c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+        definirLogo(c.toDataURL(arquivo.type === 'image/jpeg' ? 'image/jpeg' : 'image/png', 0.9));
+      };
+      img.onerror = function () { notificar('Não foi possível ler a imagem.'); };
+      img.src = url;
+    };
+    r.readAsDataURL(arquivo);
+  }
+  function definirLogo(url) {
+    marca.logo = url;
+    if (!salvarMarca()) notificar('O navegador não conseguiu guardar o logotipo. Tente uma imagem menor.');
+    else notificar(url ? 'Logotipo atualizado.' : 'Logotipo removido.');
+    aplicarMarca();
+    if (!document.getElementById('gaveta').hidden) renderGaveta();
+    if (ui.area === 'relatorio') renderizarArea();
   }
 
   function definirEstado(e) {
@@ -344,7 +456,7 @@
     var partes = [];
     if (salvoFalhou) partes.push('<span class="status-erro">Não salvo: armazenamento bloqueado</span>');
     else if (salvoEm) partes.push('<span>' + esc(horaSalvo(salvoEm)) + '</span>');
-    if (estado.meta.exemplo) partes.push(selo('Exemplo fictício', 'exemplo'));
+    if (marca.nome.trim()) partes.unshift('<span class="marca-produto">' + NOME_PRODUTO + '</span>');
     if (calculando || !analise) partes.push(selo('Recalculando…', 'info'));
     else if (analiseDesatualizada) partes.push(selo('Resultado desatualizado', 'alerta'));
     t.innerHTML = partes.join(' ');
@@ -1061,7 +1173,7 @@
           campo('Estimativa de faturamento dos próximos 12 meses', inp('receitas.estimativa12m'), 'Preenche meses projetados vazios (1/12 por mês).') + '</div>' + derivado('inicio', inicioAtividadeHtml);
       } },
       { titulo: 'Identificação e estrutura', sub: 'CPF, CNPJ e nomes são opcionais e não entram no cálculo.', essencial: false, html: function () {
-        return '<div class="campos">' +
+        return '<p class="small">Nome, logotipo, endereço e telefone que aparecem no topo e no relatório ficam em <button type="button" class="link" data-acao="marca">Marca e contato</button>.</p><div class="campos">' +
           campo('Nome ou identificação', inp('empresa.nome', { tipo: 'texto', ph: 'Opcional' })) +
           campo('CNPJ', inp('empresa.cnpj', { tipo: 'texto', ph: 'Opcional' })) +
           campo('Município', inp('empresa.municipio', { tipo: 'texto' })) +
@@ -1613,8 +1725,8 @@
     var a = analise, e = estado;
     var fonte = 'font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif; font-size: 7.5pt; color: #6f7d76;';
     el.textContent = '@page { ' +
-      '@top-left { content: ' + textoCss((e.empresa.nome || 'Empresa não identificada') + ' · Relatório de planejamento tributário ' + (a ? a.ano : e.analise.ano) + (e.meta.exemplo ? ' · dados fictícios' : '')) + '; ' + fonte + ' } ' +
-      '@top-right { content: ' + textoCss('Gerado em ' + new Date().toLocaleDateString('pt-BR')) + '; ' + fonte + ' } ' +
+      '@top-left { content: ' + textoCss(nomeMarca() + ' · Relatório de planejamento tributário ' + (a ? a.ano : e.analise.ano)) + '; ' + fonte + ' } ' +
+      '@top-right { content: ' + textoCss(e.empresa.nome || 'Empresa não identificada') + '; ' + fonte + ' } ' +
       '@bottom-left { content: "Estimativa de apoio à decisão, não é valor oficial. Valide com o contador."; ' + fonte + ' } ' +
       '@bottom-right { content: "Página " counter(page) " de " counter(pages); ' + fonte + ' } } ' +
       '@page :first { @top-left { content: none; } @top-right { content: none; } }';
@@ -1629,7 +1741,7 @@
     if (analiseDesatualizada) h += '<div class="aviso atencao nao-imprimir">Os dados mudaram depois desta análise; o relatório será atualizado em instantes.</div>';
     h += '<section class="folha" aria-label="Resumo executivo">' + relCabecalho(a, e, P) + relConclusao(a) +
       '<section class="rel-secao"><h3>Hoje e com a recomendação</h3>' + relComparativo(a) +
-      '<p class="rel-obs">Estimativas para ' + a.ano + ' com os dados informados. Atual: regime e pró-labore praticados hoje. Recomendado: melhor alternativa encontrada.</p></section>' +
+      '<p class="rel-obs">Atual: regime e pró-labore praticados hoje. Recomendado: melhor alternativa encontrada pelo simulador.</p></section>' +
       relGraficoTributos(a) + relPassos(a) + '</section>';
     h += '<section class="folha" aria-label="Detalhamento">' +
       '<section class="rel-secao"><h3><span class="n">1</span>Plano mês a mês</h3><p>' + esc(textoPlanoMensal(a)) + '</p>' + relPlanoMensal(a) + '</section>' +
@@ -1648,10 +1760,13 @@
     if (e.empresa.municipio) meta.push(esc(e.empresa.municipio + (e.empresa.uf ? '/' + e.empresa.uf : '')));
     if (socio && socio.nome) meta.push(esc(socio.nome));
     meta.push('Regime atual: ' + esc(nomeRegime(a.regimeReferencia)));
-    return '<header class="rel-cabecalho"><div class="rel-sobre"><span>Relatório de planejamento tributário · ' + a.ano + '</span>' + (e.meta.exemplo ? selo('Dados fictícios de exemplo', 'exemplo') : '') + '</div>' +
+    var linhas = [contatoMarca(['registro', 'endereco']), contatoMarca(['telefone', 'email', 'site'])].filter(function (l) { return l.length; });
+    return '<header class="rel-cabecalho"><div class="rel-timbre"><div class="rel-marca">' + logoHtml('rel-logo', 30) +
+      '<div class="rel-marca-texto"><strong>' + esc(nomeMarca()) + '</strong>' + linhas.map(function (l) { return '<span>' + l.map(esc).join(' · ') + '</span>'; }).join('') + '</div></div>' +
+      '<div class="rel-doc"><span class="rel-sobre">Planejamento tributário</span><span>Ano-calendário ' + a.ano + '</span><span>Gerado em ' + new Date().toLocaleDateString('pt-BR') + '</span></div></div>' +
       '<h2 class="rel-empresa">' + esc(e.empresa.nome || 'Empresa não identificada') + '</h2>' +
       '<p class="rel-meta">' + meta.join(' · ') + '</p>' +
-      '<p class="rel-meta">Gerado em ' + new Date().toLocaleDateString('pt-BR') + ' · Parâmetros legais de ' + P.ano + ' ' + esc(rotuloStatus(P.status)) + ' · Qualidade dos dados: ' + a.qualidade.nota + '/100 (' + esc(a.qualidade.nivel) + ')</p></header>';
+      '<p class="rel-meta">Parâmetros legais de ' + P.ano + ' ' + esc(rotuloStatus(P.status)) + ' · Qualidade dos dados: ' + a.qualidade.nota + '/100 (' + esc(a.qualidade.nivel) + ')</p></header>';
   }
 
   function relConclusao(a) {
@@ -1693,7 +1808,7 @@
   }
 
   function relPassos(a) {
-    return '<section class="rel-secao"><h3>Próximos passos</h3><ol class="rel-passos">' + a.planoAcao.map(function (p) {
+    return '<section class="rel-secao"><h3>Próximos passos</h3><ol class="rel-passos' + (a.planoAcao.length > 2 ? ' duas-colunas' : '') + '">' + a.planoAcao.map(function (p) {
       return '<li>' + esc(p.titulo) + '</li>';
     }).join('') + '</ol><p class="rel-obs">O que fazer, documentos, riscos e o que validar com o contador em cada passo: seção 3.</p></section>';
   }
@@ -1766,7 +1881,8 @@
       '<h4>Revisar com o contador</h4>' + (revisar.length ? '<ul class="rel-lista">' + revisar.map(function (x) { return '<li><span class="rel-nivel ' + x.nivel + '">' + nome[x.nivel] + '</span> <strong>' + esc(x.titulo) + '.</strong> ' + esc(x.detalhe) + '</li>'; }).join('') + '</ul>' : '<p>Nenhum ponto crítico ou de atenção com os dados informados.</p>') +
       '<h4>Dados ausentes</h4>' + (ausentes.length ? '<ul class="rel-lista">' + ausentes.map(function (i) { return '<li><strong>' + esc(i.texto) + ':</strong> ' + esc(i.efeito) + '</li>'; }).join('') + '</ul>' : '<p>Nenhum: todos os itens que medem a qualidade dos dados foram preenchidos.</p>') +
       '<h4>Premissas do cálculo</h4><ul class="rel-lista">' + premissas.map(function (l) { return '<li>' + esc(l) + '</li>'; }).join('') + '</ul>' +
-      '<p class="rel-aviso">Este relatório apoia a decisão e não substitui a revisão do contador ou de profissional tributário habilitado. Cálculos feitos no navegador, sem envio de dados.</p></section>';
+      '<p class="rel-aviso">Este relatório apoia a decisão e não substitui a revisão do contador ou de profissional tributário habilitado. Cálculos feitos no navegador, sem envio de dados.</p>' +
+      '<p class="rel-credito"><strong>ML Soluções</strong> · ' + esc(CREDITO) + '</p></section>';
   }
 
   function desenharRelatorio() {
@@ -1778,7 +1894,7 @@
       var totR = r.meses.map(function (m, i) { return M.r2(m.tributosPJ + m.inss + irR[i]); });
       var totA = at.meses.map(function (m, i) { return M.r2(m.tributosPJ + m.inss + irA[i]); });
       G.barras(c1, {
-        titulo: 'Tributos pagos a cada mês', largura: 680, altura: 160, margem: { l: 56, t: 12 }, categorias: meses, y: { formato: G.compacto },
+        titulo: 'Tributos pagos a cada mês', largura: 680, altura: 130, margem: { l: 56, t: 12 }, categorias: meses, y: { formato: G.compacto },
         series: (at !== r ? [{ nome: 'Atual', cor: 'var(--series-2)', valores: totA }] : []).concat([{ nome: 'Recomendado', cor: 'var(--accent)', valores: totR }]),
         dica: function (i) { return dicaMes(r, i, (at !== r ? [['Atual', brl(totA[i]), 'var(--series-2)']] : []).concat([['Recomendado', brl(totR[i]), 'var(--accent)']])); }
       });
@@ -1817,10 +1933,15 @@
 
   // ------------------------------------------------------------ TABELAS LEGAIS (painel lateral)
 
-  var focoAntesGaveta = null;
-  function abrirGaveta() {
+  var focoAntesGaveta = null, tipoGaveta = 'tabelas';
+  function abrirGaveta(tipo) {
     fecharMenus();
     focoAntesGaveta = document.activeElement;
+    tipoGaveta = tipo === 'marca' ? 'marca' : 'tabelas';
+    var titulo = tipoGaveta === 'marca' ? 'Marca e contato' : 'Tabelas legais';
+    document.getElementById('gaveta-titulo').textContent = titulo;
+    document.querySelector('#gaveta [data-acao="fechar-gaveta"]').setAttribute('aria-label', 'Fechar ' + titulo.toLowerCase());
+    document.querySelector('#gaveta .gaveta-painel').classList.toggle('estreita', tipoGaveta === 'marca');
     renderGaveta();
     document.getElementById('gaveta').hidden = false;
     document.body.classList.add('com-sobreposicao');
@@ -1836,7 +1957,7 @@
   }
   function renderGaveta() {
     var c = document.getElementById('gaveta-corpo');
-    try { c.innerHTML = parametrosHtml(); } catch (e) { c.innerHTML = '<div class="aviso critico">' + esc(e.message) + '</div>'; }
+    try { c.innerHTML = tipoGaveta === 'marca' ? marcaHtml() : parametrosHtml(); } catch (e) { c.innerHTML = '<div class="aviso critico">' + esc(e.message) + '</div>'; }
   }
 
   function parametrosHtml() {
@@ -1914,7 +2035,7 @@
       '</div>' +
       (temDados ? '<p class="aviso atencao small">As respostas substituem os dados atuais. Exporte um backup pelo menu Arquivo antes, se precisar.</p>' : '') +
       '<div class="linha-acoes"><button type="button" class="btn btn-primario btn-grande" data-acao="inicio-ver">Ver análise</button><button type="button" class="btn btn-grande" data-acao="inicio-etapas">Preencher tudo em etapas</button></div>' +
-      '<button type="button" class="link" data-acao="inicio-exemplo">Abrir o exemplo fictício</button>' +
+      '<button type="button" class="link" data-acao="inicio-exemplo">Abrir o exemplo</button>' +
       '</form>' +
       '<aside class="inicio-previa" aria-label="Prévia" aria-live="polite" id="inicio-previa"></aside>';
     document.getElementById('inicio').hidden = false;
@@ -2010,7 +2131,9 @@
     else baixar('simulacao-tributaria-' + analise.ano + '.csv', csv, 'text/csv;charset=utf-8');
   }
   function exportarBackup() {
-    var json = JSON.stringify(estado, null, 2);
+    var obj = JSON.parse(JSON.stringify(estado));
+    obj.marca = marca;
+    var json = JSON.stringify(obj, null, 2);
     if (MODO_ARTEFATO) copiar(json, 'Backup');
     else baixar('backup-simulador-' + new Date().toISOString().slice(0, 10) + '.json', json, 'application/json');
   }
@@ -2020,6 +2143,9 @@
       try {
         var obj = JSON.parse(r.result);
         if (!obj || typeof obj !== 'object' || !obj.analise || !obj.receitas) throw new Error('arquivo não parece um backup deste simulador');
+        var marcaBackup = obj.marca;
+        delete obj.marca;
+        if (marcaBackup && typeof marcaBackup === 'object') { marca = normalizarMarca(marcaBackup); salvarMarca(); aplicarMarca(); }
         definirEstado(M.mesclarComPadrao(obj));
         salvar(true);
         notificar('Backup importado.');
@@ -2063,6 +2189,9 @@
     'importar-backup': function () { document.getElementById('arquivo-backup').click(); },
     imprimir: imprimir,
     tabelas: abrirGaveta,
+    marca: function () { abrirGaveta('marca'); },
+    'marca-logo': function () { document.getElementById('arquivo-logo').click(); },
+    'marca-remover-logo': function () { definirLogo(''); },
     'fechar-gaveta': fecharGaveta,
     comparar: function () { ui.comparar = !ui.comparar; uiSalvar(); renderizarArea(); },
     'alertas-todos': function () { ui.alertasTodos = !ui.alertasTodos; renderizarArea(); },
@@ -2087,12 +2216,12 @@
       navegar('dados', { etapa: 1 });
     },
     exemplo: function () {
-      abrirModal('Carregar o exemplo fictício?', '<p>Os dados atuais serão substituídos pelo exemplo. Exporte um backup antes se quiser guardá-los.</p>', [['Cancelar', 'nao'], ['Carregar exemplo', 'sim', 'btn-primario']], function (r) {
-        if (r === 'sim') { definirEstado(window.DadosExemplo.criar()); salvar(true); notificar('Exemplo fictício carregado.'); }
+      abrirModal('Carregar o exemplo?', '<p>Os dados atuais serão substituídos pelo exemplo. Exporte um backup antes se quiser guardá-los.</p>', [['Cancelar', 'nao'], ['Carregar exemplo', 'sim', 'btn-primario']], function (r) {
+        if (r === 'sim') { definirEstado(window.DadosExemplo.criar()); salvar(true); notificar('Exemplo carregado.'); }
       });
     },
     limpar: function () {
-      abrirModal('Limpar todos os dados?', '<p>Apaga os dados deste navegador e começa um cadastro vazio. Não pode ser desfeito. Exporte um backup antes se precisar.</p>', [['Cancelar', 'nao'], ['Limpar dados', 'sim', 'btn-perigo']], function (r) {
+      abrirModal('Limpar todos os dados?', '<p>Apaga os dados deste navegador e começa um cadastro vazio. Não pode ser desfeito. Exporte um backup antes se precisar. A marca e o contato são mantidos.</p>', [['Cancelar', 'nao'], ['Limpar dados', 'sim', 'btn-perigo']], function (r) {
         if (r === 'sim') { removerLocal(CHAVE); salvoEm = null; definirEstado(M.estadoVazio(PL.anoPadrao)); notificar('Dados apagados.'); }
       });
     },
@@ -2212,6 +2341,7 @@
     if (t.id === 'ui-mem-k') { ui.memK = +t.value; renderizarArea(); return; }
     if (t.id === 'ui-mem-plano') { ui.memPlano = t.value; renderizarArea(); return; }
     if (/^q-/.test(t.id)) { atualizarPreviaInicio(); return; }
+    if (t.hasAttribute('data-marca')) { marca[t.getAttribute('data-marca')] = t.value; aplicarMarca(); salvarMarcaDepois(); return; }
     if (t.hasAttribute('data-socio-analisado')) { estado.empresa.socios.forEach(function (s, j) { s.analisado = j === +t.getAttribute('data-socio-analisado'); }); aoAlterar(); return; }
     var caminho = t.getAttribute('data-bind');
     if (!caminho) return;
@@ -2301,9 +2431,11 @@
       fecharMenus();
     });
     document.getElementById('arquivo-backup').addEventListener('change', function (ev) { if (ev.target.files[0]) importarBackup(ev.target.files[0]); ev.target.value = ''; });
+    document.getElementById('arquivo-logo').addEventListener('change', function (ev) { if (ev.target.files[0]) lerLogo(ev.target.files[0]); ev.target.value = ''; });
+    document.getElementById('credito').innerHTML = '<strong>ML Soluções</strong> · ' + esc(CREDITO);
     document.getElementById('versao-param').textContent = 'Parâmetros legais v' + PL_PADRAO.versao + ' (revisão de ' + PL_PADRAO.dataAtualizacao.split('-').reverse().join('/') + '). Motor v' + M.versao + '.';
     mostrarArea(true);
-    atualizarCabecalho();
+    aplicarMarca();
     if (!salvo && !ui.inicioVisto) abrirInicio();
     agendarAnalise(30);
   }

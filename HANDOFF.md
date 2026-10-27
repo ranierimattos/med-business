@@ -8,20 +8,22 @@ Aplicação web em **um único arquivo HTML**, offline e em português, para pla
 
 O pedido original foi um "prompt mestre" extenso, com 24 seções (cadastro, receitas, despesas, tributos, folha, fator "r", Simples, comparação de regimes, IRPF, dividendos, otimização, sensibilidade, interface, relatório, testes, privacidade, fontes, alertas e entrega). Esta primeira versão cobre todas as seções.
 
-**Fase atual:** novo layout do **relatório para PDF** em teste na branch `report-design`, **aguardando a aprovação do usuário**. Se aprovado, abrir PR para `main`; se não, a branch fica parada. O redesenho da interface (3 áreas: Resultado, Dados, Relatório + menu Arquivo + Tabelas legais) já está em `main` (PR #3).
+**Fase atual:** **personalização da marca** (issue #5) implementada na branch `ccr-9bf84731-bxdfac`, **aguardando a aprovação do usuário** na página de teste. Aprovado: abrir PR para `main` com "Closes #5". O redesenho da interface (PR #3) e o relatório para PDF (PR #4) já estão em `main`.
 
 ## 2. Estado atual
 
 - Repositório: `ranierimattos/med-business` (privado). Branch padrão: `main`.
-- PR #1 (o simulador completo) e PR #3 (redesenho da interface, branch `ccr-9bf84731-bxdfac`) **mescladas** em `main`. A PR #2 foi uma mesclagem de `main` de volta para a branch antiga, sem alterar arquivos.
-- Branch `report-design` (a partir de `main` depois da PR #3): novo relatório pensado para PDF. **Sem PR aberta**: depende da aprovação do usuário. O PDF de exemplo está em `docs/relatorio-exemplo.pdf`.
+- PRs #1 (simulador completo), #3 (redesenho da interface) e #4 (relatório para PDF, branch `report-design`) **mescladas** em `main`. A PR #2 foi uma mesclagem de `main` de volta para a branch antiga, sem alterar arquivos.
+- Branch `ccr-9bf84731-bxdfac` recomeçada a partir de `main` (8275112) para a issue #5. **Sem PR aberta**: depende da aprovação do usuário.
+- A versão de teste no GitHub Pages e a página hospedada da `main` foram republicadas com o relatório para PDF (main 8275112).
 - Testes: `node --test tests/motor.test.js` → 41/41; `node --test tests/ui.test.js` → 1/1 (Playwright + Chromium; inclui as verificações de impressão e do PDF).
 - Links:
   - PR #1: https://github.com/ranierimattos/med-business/pull/1
   - App publicado como página privada (variante de hospedagem, `dist/artefato/`): https://claude.ai/artifact/7k7yCKQSfmWBm7yKNfbW7d
   - Canvas da nova interface (**aprovado**): https://claude.ai/artifact/9DN79EAVXX75UdHQKYpjEE
   - PR #3: https://github.com/ranierimattos/med-business/pull/3
-  - Página de teste da branch `report-design` (variante hospedada, separada da página da `main`): https://claude.ai/artifact/9MAuYJ4tMNVnrskWAgwjm2. Para atualizar, publicar de novo o `dist/artefato/` da branch com o título "Simulador PJ (report-design)". A impressão não funciona em páginas hospedadas; o PDF se testa no arquivo offline.
+  - Issue #5 (personalização da marca): https://github.com/ranierimattos/med-business/issues/5
+  - Página de teste das branches (variante hospedada, separada da página da `main`): https://claude.ai/artifact/9MAuYJ4tMNVnrskWAgwjm2. Hoje mostra a branch `ccr-9bf84731-bxdfac` (issue #5). Para atualizar, publicar de novo o `dist/artefato/` da branch com o título "Simulador PJ (teste)". A impressão não funciona em páginas hospedadas; o PDF se testa no arquivo offline.
   - Versão de teste pública (GitHub Pages), publicada a partir de `main` com `scripts/publicar-demo.sh`: https://ranierimattos.github.io/simulador-medico-pj/ (repositório `ranierimattos/simulador-medico-pj`). O usuário pediu para **não** publicar a branch `report-design` lá.
 
 ## 3. O que já foi feito
@@ -75,6 +77,15 @@ O pedido original foi um "prompt mestre" extenso, com 24 seções (cadastro, rec
 - `beforeprint`/`afterprint`: Ctrl+P em qualquer área monta o relatório fora da tela e troca `document.title` para "Relatório tributário <ano> - <empresa>" (nome sugerido do PDF). O botão Imprimir não navega mais para o relatório.
 - Nenhum cálculo mudou; o relatório usa os mesmos campos da análise (`atual`, `recomendado`, `cenarios`, `planoAcao`, `alertas`, `qualidade`).
 
+**Personalização da marca (issue #5, branch `ccr-9bf84731-bxdfac`, aguardando aprovação)**
+- Pedido do usuário: campos para a marca do médico ou da clínica; envio de logotipo, com o símbolo da medicina quando vazio; logo, nome, endereço e telefone nas telas e no relatório; tirar os avisos de "exemplo fictício"; incluir a marca "ML Soluções" e o rodapé "Desenvolvido por Mattos-Lage Soluções Agênticas - Nexus 2, powered by Claude Opus." (texto pedido pelo usuário, usado como está).
+- `src/ui.js`: painel **Marca e contato** na mesma gaveta das Tabelas legais (`abrirGaveta('marca')`), aberto pelo menu Arquivo, pelo logotipo do topo e por um link em Dados › Identificação. Campos: nome, registro profissional, endereço, telefone, e-mail, site e logotipo.
+- A marca fica em `localStorage` próprio (`simulador-tributario-medico-pj:marca:v1`), fora do estado da simulação: "Limpar dados" e o exemplo não a apagam; o backup (.json) leva a marca no campo `marca`, e a importação a restaura. `normalizarMarca` só aceita logotipo `data:image/(png|jpeg|webp|svg+xml)`.
+- Logotipo: lido com FileReader; imagens com lado maior que 480 px (ou acima de ~300 KB) são reduzidas num canvas. Sem logotipo, `iconeMedicina()` desenha o bastão de Asclépio em SVG (máscaras com id único por ícone para a cobra passar à frente e por trás do bastão).
+- Onde aparece: topo (logotipo ou ícone + nome; com nome, "Simulador Tributário Médico PJ" vai para a linha de status), rodapé (logotipo, nome e contato), timbre do relatório (logotipo, nome, contato em até duas linhas, ano e data), cabeçalho das páginas 2+ do PDF (marca e empresa) e crédito no fim do relatório e do rodapé.
+- Sem avisos de exemplo: o selo "Exemplo fictício" do topo e do relatório, o "dados fictícios" do cabeçalho das páginas e os rótulos do menu e do início rápido saíram; o exemplo se chama "Clínica Demonstração Ltda." e a sócia "Dra. Exemplo". `estado.meta.exemplo` continua existindo para a lógica interna. Os documentos do repositório (`docs/RELATORIO-EXEMPLO.md`) ainda dizem que os dados são inventados.
+- Folha 1 do PDF: com timbre, o gráfico de tributos ficou com 130 px e os próximos passos passam a 2 colunas quando há mais de 2; medido com nome e endereço longos, sobram pelo menos 44 px.
+
 **Resultado do exemplo fictício:** Simples, com pró-labore concentrado em jan–jun (R$ 12.871 a R$ 21.621) e mínimo depois. Junho a dezembro passam ao Anexo III, com economia projetada de **R$ 9.301,68/ano** (R$ 96.602,94 contra R$ 105.904,62).
 
 ## 4. Decisões tomadas e por quê
@@ -107,7 +118,7 @@ src/parametros.js      parâmetros legais por ano (+ fontes, códigos de receita
 src/motor.js           motor tributário (estadoVazio, prepararContexto, simular, IRPF, IRPFM, DAS, LP, LR, alertas...)
 src/otimizador.js      executar(estado) → análise completa
 src/exportacao.js      CSV
-src/exemplo.js         dados fictícios de demonstração
+src/exemplo.js         dados de demonstração (Clínica Demonstração Ltda.)
 src/graficos.js        gráficos SVG (linhas, barras, tornado)
 src/ui.js              interface: Resultado, Dados (5 etapas), Relatório (folhas A4), Tabelas legais, Início rápido
 src/estilos.css        estilos (tokens claro/escuro, impressão)
@@ -149,8 +160,8 @@ Canvas de design (lido com a ferramenta Artifact, ação `read`, no link da seç
 
 ## 7. Próximos passos
 
-1. Receber o parecer do usuário sobre o relatório em PDF (`docs/relatorio-exemplo.pdf` na branch `report-design`). Aprovado: abrir PR de `report-design` para `main`. Não aprovado: ajustar na mesma branch ou deixá-la parada.
-2. Depois de mesclar em `main`, atualizar a versão de teste pública com `scripts/publicar-demo.sh <clone do simulador-medico-pj>` (só quando o usuário pedir).
+1. Receber o parecer do usuário sobre a marca na página de teste. Aprovado: abrir PR de `ccr-9bf84731-bxdfac` para `main` com "Closes #5". Não aprovado: ajustar na mesma branch.
+2. Depois de mesclar em `main`, republicar a versão de teste pública (`scripts/publicar-demo.sh <clone do simulador-medico-pj>`) e a página hospedada da `main`, só quando o usuário pedir.
 3. Conferir os parâmetros legais em fonte oficial quando houver acesso (seção 6, item 1).
 4. Ideias não feitas: navegação por setas entre as sub-seções (hoje só Tab); barra fixa com a economia no celular enquanto se edita os Dados; recálculo em Web Worker se a análise ficar mais lenta.
 

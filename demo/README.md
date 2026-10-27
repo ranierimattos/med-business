@@ -5,7 +5,7 @@ Página publicada: https://ranierimattos.github.io/simulador-medico-pj/
 Versão de teste, em um único arquivo HTML (`index.html`), do simulador de planejamento tributário para médicos que atuam por pessoa jurídica: Simples Nacional com a regra do fator "r", Lucro Presumido, Lucro Real, pró-labore, IRPF e distribuição de lucros.
 
 - Todos os cálculos rodam no navegador. Nada é enviado a servidores: os dados ficam no armazenamento local do navegador de quem usa.
-- A página abre com um exemplo fictício. Os parâmetros legais foram conferidos apenas em fontes secundárias.
+- A página abre com um exemplo de uma clínica de demonstração. Os parâmetros legais foram conferidos apenas em fontes secundárias.
 - Ferramenta de apoio à decisão: não substitui o contador.
 
 ## Como a página é publicada

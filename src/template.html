@@ -16,9 +16,9 @@
 <header class="topo">
   <div class="topo-linha">
     <div class="marca">
-      <div class="marca-icone" aria-hidden="true">Fr</div>
+      <button type="button" class="marca-icone" id="marca-logo" data-acao="marca" aria-label="Marca e contato" title="Marca e contato"></button>
       <div class="marca-texto">
-        <h1>Simulador Tributário Médico PJ</h1>
+        <h1 id="marca-nome">Simulador Tributário Médico PJ</h1>
         <div class="sub" id="identificacao"></div>
       </div>
     </div>
@@ -40,9 +40,10 @@
           <button class="btn btn-texto" data-acao="exportar-csv" data-rotulo-artefato="Copiar CSV">Exportar CSV</button>
           <button class="btn btn-texto" data-acao="imprimir" data-somente-arquivo>Imprimir relatório</button>
           <button class="btn btn-texto" data-acao="tabelas">Tabelas legais</button>
+          <button class="btn btn-texto" data-acao="marca">Marca e contato</button>
           <hr>
           <button class="btn btn-texto" data-acao="inicio-rapido">Início rápido (4 perguntas)</button>
-          <button class="btn btn-texto" data-acao="exemplo">Carregar exemplo fictício</button>
+          <button class="btn btn-texto" data-acao="exemplo">Carregar exemplo</button>
           <button class="btn btn-texto btn-perigo" data-acao="limpar">Limpar dados</button>
         </div>
       </details>
@@ -58,9 +59,11 @@
 </main>
 
 <footer class="rodape">
+  <div class="rodape-marca" id="rodape-marca" hidden></div>
   <p><strong>Privacidade:</strong> todos os cálculos rodam neste navegador. Nenhum dado é enviado a servidores, e não há rastreamento. Os dados ficam no armazenamento local do navegador e podem ser perdidos se os dados do site ou do dispositivo forem apagados: exporte um backup pelo menu Arquivo.</p>
   <p>Ferramenta de apoio à decisão. Não substitui a revisão do contador ou de profissional tributário habilitado. Estimativas não são valores oficiais.</p>
   <p id="versao-param"></p>
+  <p class="credito" id="credito"></p>
 </footer>
 
 <nav class="nav-inferior" aria-label="Áreas">
@@ -81,6 +84,7 @@
 
 <div class="fundo-modal" id="inicio" hidden><div class="inicio" id="inicio-conteudo" role="dialog" aria-modal="true" aria-labelledby="inicio-titulo"></div></div>
 <input type="file" id="arquivo-backup" accept="application/json,.json" hidden>
+<input type="file" id="arquivo-logo" accept="image/png,image/jpeg,image/webp,image/svg+xml" hidden>
 <div class="fundo-modal" id="fundo-modal" hidden><div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="modal-titulo"></div></div>
 <div class="notificacao" id="notificacao" role="status" aria-live="polite" hidden></div>
 
