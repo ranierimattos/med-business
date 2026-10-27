@@ -21,6 +21,7 @@ O pedido original foi um "prompt mestre" extenso, com 24 seções (cadastro, rec
   - App publicado como página privada (variante de hospedagem, `dist/artefato/`): https://claude.ai/artifact/7k7yCKQSfmWBm7yKNfbW7d
   - Canvas da nova interface (**aprovado**): https://claude.ai/artifact/9DN79EAVXX75UdHQKYpjEE
   - PR #3: https://github.com/ranierimattos/med-business/pull/3
+  - Página de teste da branch `report-design` (variante hospedada, separada da página da `main`): https://claude.ai/artifact/9MAuYJ4tMNVnrskWAgwjm2. Para atualizar, publicar de novo o `dist/artefato/` da branch com o título "Simulador PJ (report-design)". A impressão não funciona em páginas hospedadas; o PDF se testa no arquivo offline.
   - Versão de teste pública (GitHub Pages), publicada a partir de `main` com `scripts/publicar-demo.sh`: https://ranierimattos.github.io/simulador-medico-pj/ (repositório `ranierimattos/simulador-medico-pj`). O usuário pediu para **não** publicar a branch `report-design` lá.
 
 ## 3. O que já foi feito
