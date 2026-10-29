@@ -532,6 +532,7 @@ test('exemplos: neurologia em Ijuí (Simples, Anexo V → III) e anestesia em Po
   assert.equal(globalThis.DadosExemplo.criar('inexistente').meta.exemploId, 'clinica');
   const neuro = globalThis.DadosExemplo.criar('neurologia');
   assert.equal(neuro.empresa.municipio, 'Ijuí');
+  assert.match(globalThis.DadosExemplo.marca('neurologia').endereco, /Ijuí\/RS$/);
   const n = O.executar(neuro, { rapido: true });
   assert.equal(n.regimeRecomendado, 'simples');
   assert.ok(n.economia > 1200, 'fator "r": vale subir o pró-labore');

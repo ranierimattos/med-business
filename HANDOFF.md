@@ -91,6 +91,8 @@ O pedido original foi um "prompt mestre" extenso, com 24 seções (cadastro, rec
   - `neurologia`: Clínica Sinapse Neurologia Ltda., Ijuí (RS), Dr. Henrique Valentini. Consulta particular R$ 600, só Unimed além do particular, eletroencefalograma, pareceres no hospital (Unimed) e SUS voluntário sem receita. Simples, pró-labore R$ 8.000 → economia de R$ 43.927,46 (Anexo V → III).
   - `anestesia`: Morfeu Anestesiologia Ltda., Porto Alegre (RS), Dra. Helena Albuquerque. Lucro Presumido, sem funcionários, pró-labore R$ 8.000, vínculo CLT no teto do INSS → reduzir o pró-labore; economia de R$ 36.360,30.
 - Interface: **Arquivo › Carregar exemplo…** abre uma janela com os três exemplos; o Início rápido traz um link por exemplo (`data-exemplo`, tratado em `aoClicar` por `abrirExemplo`).
+- Primeira visita: em vez do Início rápido, abre `escolherExemplo(true)` ("Comece por um exemplo": três exemplos + "Usar os meus dados", que abre o Início rápido).
+- Cada exemplo tem `marca` (nome, registro, endereço, telefone, e-mail, site; logotipo não). `aplicarMarcaExemplo(id)` só preenche uma marca vazia ou de exemplo (`marca.exemplo = id`); editar um campo zera `marca.exemplo` e a marca vira do usuário. `soltarMarcaExemplo()` apaga nome e contato de exemplo em "Limpar dados", no Início rápido e no link "Apagar para preencher os meus" do painel.
 
 **Resultado do exemplo fictício:** Simples, com pró-labore concentrado em jan–jun (R$ 12.871 a R$ 21.621) e mínimo depois. Junho a dezembro passam ao Anexo III, com economia projetada de **R$ 9.301,68/ano** (R$ 96.602,94 contra R$ 105.904,62).
 

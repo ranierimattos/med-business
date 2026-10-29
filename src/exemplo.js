@@ -10,6 +10,7 @@
  *               eletroencefalograma, particular e Unimed, atendimento hospitalar eventual
  *   anestesia   Anestesiologista em Porto Alegre (RS) no Lucro Presumido, sem
  *               funcionários, com vínculo CLT em hospital
+ * Cada exemplo traz também nome e contato para o painel Marca e contato.
  */
 (function (raiz) {
   'use strict';
@@ -320,19 +321,29 @@
     return e;
   }
 
+  // marca: nome e contato mostrados no topo, no rodapé e no relatório (o logotipo não muda)
   var EXEMPLOS = [
-    { id: 'clinica', titulo: 'Clínica Demonstração', resumo: 'Consultas, plantões e procedimentos; Simples Nacional, uma secretária.', criar: criarClinica },
-    { id: 'neurologia', titulo: 'Clínica Sinapse Neurologia · Ijuí (RS)', resumo: 'Dr. Henrique Valentini, neurologista: consultas (particular R$ 600 e Unimed) e eletroencefalograma; atende no hospital eventualmente e no SUS como voluntário.', criar: criarNeurologia },
-    { id: 'anestesia', titulo: 'Morfeu Anestesiologia · Porto Alegre (RS)', resumo: 'Dra. Helena Albuquerque, anestesiologista: anestesias e plantões de UTI, Lucro Presumido com pró-labore de R$ 8.000, sem funcionários e com vínculo CLT em hospital.', criar: criarAnestesia }
+    {
+      id: 'clinica', titulo: 'Clínica Demonstração', resumo: 'Consultas, plantões e procedimentos; Simples Nacional, uma secretária.', criar: criarClinica,
+      marca: { nome: 'Clínica Demonstração', registro: 'Dra. Exemplo · CRM-SP 123456', endereco: 'Av. Central, 1000, sala 12, Centro, Cidade Exemplo/SP', telefone: '(11) 3000-1234', email: 'contato@clinicademonstracao.med.br', site: 'www.clinicademonstracao.med.br' }
+    },
+    {
+      id: 'neurologia', titulo: 'Clínica Sinapse Neurologia · Ijuí (RS)', resumo: 'Dr. Henrique Valentini, neurologista: consultas (particular R$ 600 e Unimed) e eletroencefalograma; atende no hospital eventualmente e no SUS como voluntário.', criar: criarNeurologia,
+      marca: { nome: 'Clínica Sinapse Neurologia', registro: 'Dr. Henrique Valentini · Neurologista · CRM-RS 28417 · RQE 19352', endereco: 'Rua do Comércio, 1250, sala 3, Centro, Ijuí/RS', telefone: '(55) 3332-4180', email: 'contato@sinapseneuro.med.br', site: 'www.sinapseneuro.med.br' }
+    },
+    {
+      id: 'anestesia', titulo: 'Morfeu Anestesiologia · Porto Alegre (RS)', resumo: 'Dra. Helena Albuquerque, anestesiologista: anestesias e plantões de UTI, Lucro Presumido com pró-labore de R$ 8.000, sem funcionários e com vínculo CLT em hospital.', criar: criarAnestesia,
+      marca: { nome: 'Morfeu Anestesiologia', registro: 'Dra. Helena Albuquerque · Anestesiologista · CRM-RS 31562 · RQE 22748', endereco: 'Rua Mostardeiro, 780, sala 402, Moinhos de Vento, Porto Alegre/RS', telefone: '(51) 3029-7714', email: 'agenda@morfeuanestesia.med.br', site: 'www.morfeuanestesia.med.br' }
+    }
   ];
 
-  function criar(id) {
-    var ex = EXEMPLOS.filter(function (x) { return x.id === id; })[0] || EXEMPLOS[0];
-    return ex.criar();
-  }
+  function buscar(id) { return EXEMPLOS.filter(function (x) { return x.id === id; })[0] || EXEMPLOS[0]; }
+  function criar(id) { return buscar(id).criar(); }
+  function marca(id) { var m = buscar(id).marca, r = {}; Object.keys(m).forEach(function (k) { r[k] = m[k]; }); return r; }
 
   raiz.DadosExemplo = {
     criar: criar,
+    marca: marca,
     lista: EXEMPLOS.map(function (x) { return { id: x.id, titulo: x.titulo, resumo: x.resumo }; })
   };
 })(typeof window !== 'undefined' ? window : globalThis);
