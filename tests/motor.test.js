@@ -527,6 +527,23 @@ test('otimizador pode concluir que não há vantagem relevante', () => {
   assert.equal(a.planoAcao[0].titulo, 'Manter a estrutura atual');
 });
 
+test('exemplos: neurologia em Ijuí (Simples, Anexo V → III) e anestesia em Porto Alegre (Presumido, reduzir o pró-labore)', () => {
+  assert.deepEqual(globalThis.DadosExemplo.lista.map((x) => x.id), ['clinica', 'neurologia', 'anestesia']);
+  assert.equal(globalThis.DadosExemplo.criar('inexistente').meta.exemploId, 'clinica');
+  const neuro = globalThis.DadosExemplo.criar('neurologia');
+  assert.equal(neuro.empresa.municipio, 'Ijuí');
+  assert.match(globalThis.DadosExemplo.marca('neurologia').endereco, /Ijuí\/RS$/);
+  const n = O.executar(neuro, { rapido: true });
+  assert.equal(n.regimeRecomendado, 'simples');
+  assert.ok(n.economia > 1200, 'fator "r": vale subir o pró-labore');
+  assert.ok(n.recomendado.anual.custoTotal < n.atual.anual.custoTotal);
+  const anest = globalThis.DadosExemplo.criar('anestesia');
+  const a = O.executar(anest, { rapido: true });
+  assert.equal(a.regimeRecomendado, 'presumido');
+  assert.ok(a.economia > 1200, 'pró-labore de R$ 8.000 no Presumido custa mais que o mínimo');
+  assert.ok(a.recomendado.anual.custoTotal < a.atual.anual.custoTotal);
+});
+
 // ------------------------------------------------------------ exportação
 
 test('exportação CSV: separador ";", vírgula decimal e totais iguais aos do motor', () => {

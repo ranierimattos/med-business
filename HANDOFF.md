@@ -23,7 +23,7 @@ O pedido original foi um "prompt mestre" extenso, com 24 seções (cadastro, rec
   - Canvas da nova interface (**aprovado**): https://claude.ai/artifact/9DN79EAVXX75UdHQKYpjEE
   - PR #3: https://github.com/ranierimattos/med-business/pull/3
   - Issue #5 (personalização da marca): https://github.com/ranierimattos/med-business/issues/5
-  - Página de teste das branches (variante hospedada, separada da página da `main`): https://claude.ai/artifact/9MAuYJ4tMNVnrskWAgwjm2. Hoje mostra a branch `ccr-9bf84731-bxdfac` (issue #5). Para atualizar, publicar de novo o `dist/artefato/` da branch com o título "Simulador PJ (teste)". A impressão não funciona em páginas hospedadas; o PDF se testa no arquivo offline.
+  - Página de teste das branches (variante hospedada, separada da página da `main`): https://claude.ai/artifact/9MAuYJ4tMNVnrskWAgwjm2. Hoje mostra a branch `claude/stoic-fermat-zazd6u` (exemplos de neurologia e anestesia). Para atualizar, publicar de novo o `dist/artefato/` da branch com o título "Simulador PJ (teste)". A impressão não funciona em páginas hospedadas; o PDF se testa no arquivo offline.
   - Versão de teste pública (GitHub Pages), publicada a partir de `main` com `scripts/publicar-demo.sh`: https://ranierimattos.github.io/simulador-medico-pj/ (repositório `ranierimattos/simulador-medico-pj`). O usuário pediu para **não** publicar a branch `report-design` lá.
 
 ## 3. O que já foi feito
@@ -85,6 +85,14 @@ O pedido original foi um "prompt mestre" extenso, com 24 seções (cadastro, rec
 - Onde aparece: topo (logotipo ou ícone + nome; com nome, "Simulador Tributário Médico PJ" vai para a linha de status), rodapé (logotipo, nome e contato), timbre do relatório (logotipo, nome, contato em até duas linhas, ano e data), cabeçalho das páginas 2+ do PDF (marca e empresa) e crédito no fim do relatório e do rodapé.
 - Sem avisos de exemplo: o selo "Exemplo fictício" do topo e do relatório, o "dados fictícios" do cabeçalho das páginas e os rótulos do menu e do início rápido saíram; o exemplo se chama "Clínica Demonstração Ltda." e a sócia "Dra. Exemplo". `estado.meta.exemplo` continua existindo para a lógica interna. Os documentos do repositório (`docs/RELATORIO-EXEMPLO.md`) ainda dizem que os dados são inventados.
 - Folha 1 do PDF: com timbre, o gráfico de tributos ficou com 130 px e os próximos passos passam a 2 colunas quando há mais de 2; medido com nome e endereço longos, sobram pelo menos 44 px.
+
+**Exemplos novos (branch `claude/stoic-fermat-zazd6u`)**
+- `src/exemplo.js` agora tem três exemplos em `DadosExemplo.lista` (`id`, `titulo`, `resumo`); `DadosExemplo.criar(id)` cria o estado (sem `id`, a Clínica Demonstração) e grava `meta.exemploId`.
+  - `neurologia`: Clínica Sinapse Neurologia Ltda., Ijuí (RS), Dr. Henrique Valentini. Consulta particular R$ 600, só Unimed além do particular, eletroencefalograma, pareceres no hospital (Unimed) e SUS voluntário sem receita. Simples, pró-labore R$ 8.000 → economia de R$ 43.927,46 (Anexo V → III).
+  - `anestesia`: Morfeu Anestesiologia Ltda., Porto Alegre (RS), Dra. Helena Albuquerque. Lucro Presumido, sem funcionários, pró-labore R$ 8.000, vínculo CLT no teto do INSS → reduzir o pró-labore; economia de R$ 36.360,30.
+- Interface: **Arquivo › Carregar exemplo…** abre uma janela com os três exemplos; o Início rápido traz um link por exemplo (`data-exemplo`, tratado em `aoClicar` por `abrirExemplo`).
+- Primeira visita: em vez do Início rápido, abre `escolherExemplo(true)` ("Comece por um exemplo": três exemplos + "Usar os meus dados", que abre o Início rápido).
+- Cada exemplo tem `marca` (nome, registro, endereço, telefone, e-mail, site; logotipo não). `aplicarMarcaExemplo(id)` só preenche uma marca vazia ou de exemplo (`marca.exemplo = id`); editar um campo zera `marca.exemplo` e a marca vira do usuário. `soltarMarcaExemplo()` apaga nome e contato de exemplo em "Limpar dados", no Início rápido e no link "Apagar para preencher os meus" do painel.
 
 **Resultado do exemplo fictício:** Simples, com pró-labore concentrado em jan–jun (R$ 12.871 a R$ 21.621) e mínimo depois. Junho a dezembro passam ao Anexo III, com economia projetada de **R$ 9.301,68/ano** (R$ 96.602,94 contra R$ 105.904,62).
 

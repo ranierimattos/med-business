@@ -14,12 +14,12 @@ Aplicação web em **um único arquivo HTML** para planejamento financeiro e oti
 ## 1. Como usar
 
 1. Abra `dist/simulador-tributario-medico-pj.html` em um navegador moderno (Chrome, Edge, Firefox ou Safari, no computador ou no celular).
-2. Na primeira abertura aparece o **Início rápido**: 4 perguntas (receita média por mês, pró-labore atual, salários de empregados e regime atual) com uma prévia ao vivo do custo tributário de hoje. **Ver análise** cria o cadastro com essas respostas; **Preencher tudo em etapas** leva aos Dados; **Abrir o exemplo** mostra uma clínica de demonstração. O Início rápido pode ser reaberto pelo menu **Arquivo**.
+2. Na primeira abertura aparece a janela **Comece por um exemplo**, com os três exemplos já preenchidos (dados e Marca e contato) e a opção **Usar os meus dados**, que abre o **Início rápido**: 4 perguntas (receita média por mês, pró-labore atual, salários de empregados e regime atual) com uma prévia ao vivo do custo tributário de hoje. **Ver análise** cria o cadastro com essas respostas; **Preencher tudo em etapas** leva aos Dados; os links de exemplo abrem um dos três casos de demonstração (veja abaixo). O Início rápido pode ser reaberto pelo menu **Arquivo**.
 3. O resultado é **recalculado automaticamente** cerca de um segundo depois de cada alteração. Enquanto isso, o topo mostra "Resultado desatualizado" ou "Recalculando…".
 
 A interface tem três áreas, mais o menu **Arquivo** e a engrenagem das **Tabelas legais**. No celular, as áreas ficam numa barra inferior e o menu Arquivo no botão ⋮.
 
-**Marca e contato.** O nome do médico ou da clínica, o logotipo (PNG, JPG, WebP ou SVG), o registro profissional, o endereço, o telefone, o e-mail e o site aparecem no topo de todas as telas, no rodapé e no cabeçalho do relatório em PDF. Edite em **Arquivo › Marca e contato** ou clicando no logotipo do topo. Sem logotipo, aparece o símbolo da medicina (bastão de Asclépio); sem nome, o topo mostra "Simulador Tributário Médico PJ". A marca fica salva no navegador separada da simulação: **Limpar dados** e **Carregar exemplo** não a apagam, e o backup (.json) a inclui. O rodapé traz o crédito **ML Soluções** · Desenvolvido por Mattos-Lage Soluções Agênticas - Nexus 2, powered by Claude Opus.
+**Marca e contato.** O nome do médico ou da clínica, o logotipo (PNG, JPG, WebP ou SVG), o registro profissional, o endereço, o telefone, o e-mail e o site aparecem no topo de todas as telas, no rodapé e no cabeçalho do relatório em PDF. Edite em **Arquivo › Marca e contato** ou clicando no logotipo do topo. Sem logotipo, aparece o símbolo da medicina (bastão de Asclépio); sem nome, o topo mostra "Simulador Tributário Médico PJ". A marca fica salva no navegador separada da simulação: **Limpar dados** e **Carregar exemplo** não a apagam, e o backup (.json) a inclui. Cada exemplo preenche o nome e o contato (não o logotipo) quando a marca está vazia ou também veio de um exemplo; ao editar qualquer campo, a marca passa a ser do usuário. O nome e o contato de exemplo saem com **Limpar dados** e com o Início rápido. O rodapé traz o crédito **ML Soluções** · Desenvolvido por Mattos-Lage Soluções Agênticas - Nexus 2, powered by Claude Opus.
 
 | Área | O que tem |
 |---|---|
@@ -37,7 +37,7 @@ A interface tem três áreas, mais o menu **Arquivo** e a engrenagem das **Tabel
 
 **Tabelas legais.** A engrenagem abre, em painel lateral, as tabelas, fontes, data de consulta, vigência e status de cada parâmetro, e o editor JSON para atualizar valores ou criar um novo ano.
 
-**Arquivo.** Os dados são salvos automaticamente no armazenamento local do navegador, com o horário visível no topo. O menu **Arquivo** reúne **Salvar agora**, **Carregar dados salvos**, **Exportar backup (.json)**, **Importar backup**, **Exportar CSV**, **Imprimir relatório**, **Tabelas legais**, **Marca e contato**, **Início rápido**, **Carregar exemplo** e **Limpar dados** (pede confirmação). Os dados do navegador podem ser perdidos se os dados do site forem apagados: exporte um backup.
+**Arquivo.** Os dados são salvos automaticamente no armazenamento local do navegador, com o horário visível no topo. O menu **Arquivo** reúne **Salvar agora**, **Carregar dados salvos**, **Exportar backup (.json)**, **Importar backup**, **Exportar CSV**, **Imprimir relatório**, **Tabelas legais**, **Marca e contato**, **Início rápido**, **Carregar exemplo…** e **Limpar dados** (pede confirmação). Os dados do navegador podem ser perdidos se os dados do site forem apagados: exporte um backup.
 
 **Endereços.** Cada tela tem endereço próprio (`#resultado/cenarios`, `#dados/3`, `#relatorio`), e o botão Voltar do navegador funciona entre elas.
 
@@ -52,7 +52,7 @@ src/parametros.js   parâmetros legais por ano (único lugar com alíquotas, fai
 src/motor.js        motor tributário (funções puras, sem interface)
 src/otimizador.js   busca de cenários, sensibilidade, equilíbrio, plano de ação
 src/exportacao.js   CSV
-src/exemplo.js      dados fictícios de demonstração
+src/exemplo.js      dados fictícios de demonstração (três exemplos)
 src/graficos.js     gráficos SVG sem bibliotecas
 src/ui.js           interface (Resultado, Dados em 5 etapas, Relatório, Tabelas legais, Início rápido)
 src/estilos.css, src/template.html
@@ -186,6 +186,14 @@ Os valores completos, URLs e observações estão em **Tabelas legais** (engrena
 ---
 
 ## 7. Demonstração e recomendação do exemplo
+
+**Exemplos disponíveis** (menu **Arquivo › Carregar exemplo…** ou links do Início rápido; nomes e valores inventados, ISS municipal ilustrativo):
+
+| Exemplo | Perfil | Resultado em 2026 |
+|---|---|---|
+| Clínica Demonstração | Consultas, plantões e procedimentos; Simples, uma secretária, pró-labore de R$ 3.000; receita de R$ 576 mil | Simples com pró-labore concentrado no 1º semestre; economia de R$ 9.301,68 |
+| Clínica Sinapse Neurologia · Ijuí (RS) | Dr. Henrique Valentini, neurologista: consulta particular de R$ 600, credenciado só à Unimed; eletroencefalograma; pareceres e internações Unimed no hospital; SUS voluntário (sem receita). Simples, 3 funcionárias, pró-labore de R$ 8.000; receita de R$ 922 mil | Fator "r" sobe a 28% em março e 10 meses passam ao Anexo III; economia de R$ 43.927,46 |
+| Morfeu Anestesiologia · Porto Alegre (RS) | Dra. Helena Albuquerque, anestesiologista: anestesias e plantões de UTI pagos por hospitais (com retenções), sem funcionários; Lucro Presumido com pró-labore de R$ 8.000; vínculo CLT no teto do INSS; receita de R$ 815 mil | Ficar no Presumido e reduzir o pró-labore ao mínimo; economia de R$ 36.360,30 |
 
 O exemplo fictício (clínica com receita de R$ 576 mil em 2026, Anexo V, pró-labore de R$ 3.000) está detalhado em [`docs/RELATORIO-EXEMPLO.md`](docs/RELATORIO-EXEMPLO.md), com sete cenários comparados (atual, pró-labore reduzido, intermediário, elevado, otimizado, Lucro Presumido e Lucro Real), plano mensal, pontos de equilíbrio, sensibilidade e efeito no ano seguinte.
 

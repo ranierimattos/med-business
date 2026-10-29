@@ -115,6 +115,8 @@
 
   // ------------------------------------------------------------ marca (nome, logotipo e contato do médico ou da clínica)
   // Fica fora do estado da simulação: não é apagada por "Limpar dados" nem pelo exemplo, e vai junto no backup.
+  // Exceção: o nome e o contato que um exemplo preenche (marca.exemplo = id do exemplo) saem com "Limpar dados"
+  // e são trocados ao carregar outro exemplo, até o usuário editar um campo.
 
   var CAMPOS_MARCA = [
     ['nome', 'Nome do médico ou da clínica', 'Ex.: Clínica Santa Luzia'], ['registro', 'Registro profissional', 'Ex.: CRM-SP 123456'],
@@ -128,7 +130,23 @@
     var r = {};
     CAMPOS_MARCA.forEach(function (c) { r[c[0]] = m && typeof m[c[0]] === 'string' ? m[c[0]] : ''; });
     r.logo = m && typeof m.logo === 'string' && /^data:image\/(png|jpeg|webp|svg\+xml)[;,]/.test(m.logo) ? m.logo : '';
+    r.exemplo = m && typeof m.exemplo === 'string' ? m.exemplo : '';
     return r;
+  }
+  function marcaVazia() { return CAMPOS_MARCA.every(function (c) { return !marca[c[0]].trim(); }); }
+  function trocarMarcaTexto(dados, exemplo) {
+    CAMPOS_MARCA.forEach(function (c) { marca[c[0]] = (dados && dados[c[0]]) || ''; });
+    marca.exemplo = exemplo || '';
+    salvarMarca();
+    aplicarMarca();
+    if (!document.getElementById('gaveta').hidden) renderGaveta();
+  }
+  // O exemplo só preenche uma marca vazia ou que também veio de exemplo; a do usuário fica.
+  function aplicarMarcaExemplo(id) {
+    if (marca.exemplo || marcaVazia()) trocarMarcaTexto(window.DadosExemplo.marca(id), id);
+  }
+  function soltarMarcaExemplo() {
+    if (marca.exemplo) trocarMarcaTexto(null, '');
   }
   function salvarMarca() { return gravarLocal(CHAVE_MARCA, marca); }
   var timerMarca = null;
@@ -177,7 +195,8 @@
   }
 
   function marcaHtml() {
-    return '<p class="small">Aparece no topo de todas as telas, no rodapé e no cabeçalho do relatório em PDF. Fica salva neste navegador, separada dos dados da simulação: não é apagada por "Limpar dados" nem ao carregar o exemplo, e vai junto no backup (.json).</p>' +
+    return '<p class="small">Aparece no topo de todas as telas, no rodapé e no cabeçalho do relatório em PDF. Fica salva neste navegador, separada dos dados da simulação: a sua marca não é apagada por "Limpar dados" nem ao carregar um exemplo, e vai junto no backup (.json).</p>' +
+      (marca.exemplo ? '<div class="aviso small">Nome e contato do exemplo carregado. Ao editar qualquer campo, eles passam a ser seus e outro exemplo não os substitui mais. <button type="button" class="link" data-acao="marca-soltar-exemplo">Apagar para preencher os meus</button></div>' : '') +
       '<section class="bloco"><header><h3>Logotipo</h3><p>PNG, JPG, WebP ou SVG. Sem logotipo, aparece o símbolo da medicina (bastão de Asclépio).</p></header>' +
       '<div class="marca-editor-logo">' + logoHtml('marca-previa', 40) + '<div class="linha-acoes"><button type="button" class="btn" data-acao="marca-logo">' + (marca.logo ? 'Trocar logotipo' : 'Enviar logotipo') + '</button>' +
       (marca.logo ? '<button type="button" class="btn btn-texto btn-perigo" data-acao="marca-remover-logo">Remover logotipo</button>' : '') + '</div></div></section>' +
@@ -2035,7 +2054,7 @@
       '</div>' +
       (temDados ? '<p class="aviso atencao small">As respostas substituem os dados atuais. Exporte um backup pelo menu Arquivo antes, se precisar.</p>' : '') +
       '<div class="linha-acoes"><button type="button" class="btn btn-primario btn-grande" data-acao="inicio-ver">Ver análise</button><button type="button" class="btn btn-grande" data-acao="inicio-etapas">Preencher tudo em etapas</button></div>' +
-      '<button type="button" class="link" data-acao="inicio-exemplo">Abrir o exemplo</button>' +
+      '<div class="inicio-exemplos"><span class="small muted">Ou abra um exemplo:</span>' + window.DadosExemplo.lista.map(function (x) { return '<button type="button" class="link" data-exemplo="' + x.id + '" data-do-inicio title="' + esc(x.resumo) + '">' + esc(x.titulo) + '</button>'; }).join('') + '</div>' +
       '</form>' +
       '<aside class="inicio-previa" aria-label="Prévia" aria-live="polite" id="inicio-previa"></aside>';
     document.getElementById('inicio').hidden = false;
@@ -2192,37 +2211,30 @@
     marca: function () { abrirGaveta('marca'); },
     'marca-logo': function () { document.getElementById('arquivo-logo').click(); },
     'marca-remover-logo': function () { definirLogo(''); },
+    'marca-soltar-exemplo': function () { soltarMarcaExemplo(); var c = document.getElementById('marca-campo-nome'); if (c) c.focus(); },
     'fechar-gaveta': fecharGaveta,
     comparar: function () { ui.comparar = !ui.comparar; uiSalvar(); renderizarArea(); },
     'alertas-todos': function () { ui.alertasTodos = !ui.alertasTodos; renderizarArea(); },
     'alternar-historico': function () { ui.historicoAberto = !ui.historicoAberto; renderizarArea(); },
     'inicio-rapido': abrirInicio,
     'inicio-fechar': fecharInicio,
-    'inicio-exemplo': function () {
-      if (!estado.meta.exemplo || estado.meta.editado) definirEstado(window.DadosExemplo.criar());
-      fecharInicio();
-      navegar('resultado', { sub: 'resumo' });
-    },
     'inicio-ver': function () {
       var r = respostasInicio();
       if (!r.receita) { notificar('Informe a receita média por mês.'); document.getElementById('q-receita').focus(); return; }
-      fecharInicio();
+      fecharInicio(); soltarMarcaExemplo();
       definirEstado(estadoInicio(r)); salvar(true);
       navegar('resultado', { sub: 'resumo' });
     },
     'inicio-etapas': function () {
-      fecharInicio();
-      definirEstado(estadoInicio(respostasInicio())); salvar(true);
+      var r = respostasInicio();
+      fecharInicio(); soltarMarcaExemplo();
+      definirEstado(estadoInicio(r)); salvar(true);
       navegar('dados', { etapa: 1 });
     },
-    exemplo: function () {
-      abrirModal('Carregar o exemplo?', '<p>Os dados atuais serão substituídos pelo exemplo. Exporte um backup antes se quiser guardá-los.</p>', [['Cancelar', 'nao'], ['Carregar exemplo', 'sim', 'btn-primario']], function (r) {
-        if (r === 'sim') { definirEstado(window.DadosExemplo.criar()); salvar(true); notificar('Exemplo carregado.'); }
-      });
-    },
+    exemplo: function () { escolherExemplo(false); },
     limpar: function () {
-      abrirModal('Limpar todos os dados?', '<p>Apaga os dados deste navegador e começa um cadastro vazio. Não pode ser desfeito. Exporte um backup antes se precisar. A marca e o contato são mantidos.</p>', [['Cancelar', 'nao'], ['Limpar dados', 'sim', 'btn-perigo']], function (r) {
-        if (r === 'sim') { removerLocal(CHAVE); salvoEm = null; definirEstado(M.estadoVazio(PL.anoPadrao)); notificar('Dados apagados.'); }
+      abrirModal('Limpar todos os dados?', '<p>Apaga os dados deste navegador e começa um cadastro vazio. Não pode ser desfeito. Exporte um backup antes se precisar. A sua marca e o seu contato são mantidos; os de um exemplo são apagados.</p>', [['Cancelar', 'nao'], ['Limpar dados', 'sim', 'btn-perigo']], function (r) {
+        if (r === 'sim') { removerLocal(CHAVE); salvoEm = null; soltarMarcaExemplo(); definirEstado(M.estadoVazio(PL.anoPadrao)); notificar('Dados apagados.'); }
       });
     },
     'adicionar-socio': function () { estado.empresa.socios.push({ nome: '', participacao: 0, analisado: false, residenteExterior: false }); aoAlterar(); renderizarArea(); },
@@ -2300,6 +2312,33 @@
     'exportar-param': function () { baixar('parametros-legais.json', JSON.stringify(PL.anos, null, 2), 'application/json'); }
   };
 
+  // Janela de escolha do exemplo. Na primeira visita serve de boas-vindas e oferece também o início rápido.
+  function escolherExemplo(boasVindas) {
+    var opcoes = window.DadosExemplo.lista.map(function (x) {
+      return '<button type="button" class="opcao-exemplo" data-modal="ex:' + x.id + '"><strong>' + esc(x.titulo) + '</strong><span>' + esc(x.resumo) + '</span></button>';
+    }).join('');
+    if (boasVindas) {
+      opcoes += '<button type="button" class="opcao-exemplo opcao-propria" data-modal="inicio"><strong>Usar os meus dados</strong><span>Início rápido: 4 perguntas e uma prévia ao vivo. O resto pode ser completado depois.</span></button>';
+      ui.inicioVisto = true; uiSalvar();
+    }
+    var texto = boasVindas ? 'Abra um exemplo já preenchido para ver como o simulador funciona, ou comece com os seus dados. Os exemplos ficam no menu Arquivo.' :
+      'Os dados atuais serão substituídos pelo exemplo escolhido. Exporte um backup antes se quiser guardá-los.';
+    abrirModal(boasVindas ? 'Comece por um exemplo' : 'Carregar um exemplo', '<p class="small">' + texto + '</p><div class="lista-exemplos">' + opcoes + '</div>', [[boasVindas ? 'Fechar' : 'Cancelar', 'nao']], function (r) {
+      if (r.indexOf('ex:') === 0) abrirExemplo(r.slice(3), false);
+      else if (r === 'inicio') abrirInicio();
+    });
+  }
+
+  // Carrega um exemplo. Do início rápido, mantém o exemplo já aberto se ainda não foi editado.
+  function abrirExemplo(id, doInicio) {
+    var mesmo = estado.meta.exemplo && !estado.meta.editado && (estado.meta.exemploId || 'clinica') === id;
+    if (!doInicio || !mesmo) definirEstado(window.DadosExemplo.criar(id));
+    aplicarMarcaExemplo(id);
+    if (doInicio) fecharInicio();
+    else { salvar(true); notificar('Exemplo carregado.'); }
+    navegar('resultado', { sub: 'resumo' });
+  }
+
   function aoClicar(ev) {
     if (ev.target.id === 'gaveta') { fecharGaveta(); return; }
     var menu = document.getElementById('menu-arquivo');
@@ -2313,6 +2352,7 @@
       if (location.hash === t.getAttribute('href') || area === ui.area) { ev.preventDefault(); navegar(area); }
       return;
     }
+    if (t.hasAttribute('data-exemplo')) { ev.preventDefault(); abrirExemplo(t.getAttribute('data-exemplo'), t.hasAttribute('data-do-inicio')); return; }
     var a = t.getAttribute('data-acao');
     if (a && ACOES[a]) { ev.preventDefault(); fecharMenus(); ACOES[a](); return; }
     var i;
@@ -2341,7 +2381,11 @@
     if (t.id === 'ui-mem-k') { ui.memK = +t.value; renderizarArea(); return; }
     if (t.id === 'ui-mem-plano') { ui.memPlano = t.value; renderizarArea(); return; }
     if (/^q-/.test(t.id)) { atualizarPreviaInicio(); return; }
-    if (t.hasAttribute('data-marca')) { marca[t.getAttribute('data-marca')] = t.value; aplicarMarca(); salvarMarcaDepois(); return; }
+    if (t.hasAttribute('data-marca')) {
+      marca[t.getAttribute('data-marca')] = t.value;
+      if (marca.exemplo) { marca.exemplo = ''; var av = document.querySelector('#gaveta .aviso'); if (av) av.remove(); }
+      aplicarMarca(); salvarMarcaDepois(); return;
+    }
     if (t.hasAttribute('data-socio-analisado')) { estado.empresa.socios.forEach(function (s, j) { s.analisado = j === +t.getAttribute('data-socio-analisado'); }); aoAlterar(); return; }
     var caminho = t.getAttribute('data-bind');
     if (!caminho) return;
@@ -2435,8 +2479,9 @@
     document.getElementById('credito').innerHTML = '<strong>ML Soluções</strong> · ' + esc(CREDITO);
     document.getElementById('versao-param').textContent = 'Parâmetros legais v' + PL_PADRAO.versao + ' (revisão de ' + PL_PADRAO.dataAtualizacao.split('-').reverse().join('/') + '). Motor v' + M.versao + '.';
     mostrarArea(true);
+    if (!salvo) aplicarMarcaExemplo(estado.meta.exemploId);
     aplicarMarca();
-    if (!salvo && !ui.inicioVisto) abrirInicio();
+    if (!salvo && !ui.inicioVisto) escolherExemplo(true);
     agendarAnalise(30);
   }
 

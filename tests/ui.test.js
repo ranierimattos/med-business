@@ -36,10 +36,21 @@ test('interface: arquivo único offline, resultado = motor, dados com recálculo
   try {
     await pagina.goto(URL);
 
-    // 1. Primeira abertura: início rápido; o exemplo fictício já fica carregado por trás
+    // 1. Primeira abertura: escolha do exemplo (três exemplos + início rápido); o exemplo padrão já fica carregado por trás
+    await pagina.waitForSelector('#fundo-modal:not([hidden]) .opcao-exemplo');
+    assert.deepEqual(await pagina.$$eval('#modal [data-modal]', (b) => b.map((x) => x.getAttribute('data-modal'))), ['ex:clinica', 'ex:neurologia', 'ex:anestesia', 'inicio', 'nao']);
+    assert.equal(await pagina.textContent('#marca-nome'), 'Clínica Demonstração', 'o exemplo preenche a marca vazia');
+    await pagina.click('[data-modal="inicio"]');
     await pagina.waitForSelector('#inicio:not([hidden]) #q-receita');
-    await pagina.click('[data-acao="inicio-exemplo"]');
+    await pagina.click('[data-exemplo="neurologia"]');
     assert.equal(await pagina.$eval('#inicio', (el) => el.hidden), true);
+    await pagina.waitForFunction(() => window.SimuladorUI.estado().meta.exemploId === 'neurologia');
+    assert.equal(await pagina.textContent('#marca-nome'), 'Clínica Sinapse Neurologia', 'marca de exemplo trocada pela do novo exemplo');
+    assert.match(await pagina.textContent('#rodape-marca'), /Ijuí\/RS[\s\S]*\(55\) 3332-4180/);
+    await abrirMenu(pagina);
+    await pagina.click('#menu-arquivo button[data-acao="exemplo"]');
+    await pagina.click('[data-modal="ex:clinica"]');
+    await pagina.waitForFunction(() => window.SimuladorUI.estado().meta.exemploId === 'clinica');
     await pagina.waitForFunction(() => window.SimuladorUI && window.SimuladorUI.analise(), null, { timeout: 30000 });
     await pagina.waitForSelector('#economia-projetada');
 
@@ -51,10 +62,14 @@ test('interface: arquivo único offline, resultado = motor, dados com recálculo
     // 2b. Sem avisos de "exemplo fictício"; crédito no rodapé; marca com logotipo no topo e no rodapé
     assert.equal(await pagina.evaluate(() => /fictíci/i.test(document.body.innerText)), false, 'sem avisos de exemplo fictício');
     assert.match(await pagina.textContent('#credito'), /^ML Soluções · Desenvolvido por Mattos-Lage Soluções Agênticas - Nexus 2/);
-    assert.equal(await pagina.textContent('#marca-nome'), 'Simulador Tributário Médico PJ');
+    assert.equal(await pagina.textContent('#marca-nome'), 'Clínica Demonstração');
     assert.ok(await pagina.$('#marca-logo svg'), 'sem logotipo, aparece o ícone padrão');
     await pagina.click('#marca-logo');
     await pagina.waitForSelector('#gaveta:not([hidden]) #marca-campo-nome');
+    assert.equal(await pagina.inputValue('#marca-campo-site'), 'www.clinicademonstracao.med.br');
+    await pagina.click('[data-acao="marca-soltar-exemplo"]');
+    assert.equal(await pagina.textContent('#marca-nome'), 'Simulador Tributário Médico PJ', 'sem nome, o topo mostra o produto');
+    assert.equal(await pagina.inputValue('#marca-campo-site'), '');
     await pagina.fill('#marca-campo-nome', 'Clínica Santa Luzia');
     await pagina.fill('#marca-campo-telefone', '(11) 3000-0000');
     await pagina.setInputFiles('#arquivo-logo', { name: 'logo.png', mimeType: 'image/png', buffer: PNG_1X1 });
@@ -198,6 +213,17 @@ test('interface: arquivo único offline, resultado = motor, dados com recálculo
     await pagina.click('[data-modal="sim"]');
     assert.equal(await pagina.evaluate(() => window.SimuladorUI.estado().despesas.length), 0);
     assert.equal(await pagina.textContent('#marca-nome'), 'Clínica Santa Luzia', 'limpar dados mantém a marca');
+
+    // 13b. Menu Arquivo: escolher outro exemplo (neurologista em Ijuí)
+    await abrirMenu(pagina);
+    await pagina.click('#menu-arquivo button[data-acao="exemplo"]');
+    assert.equal(await pagina.$$eval('.opcao-exemplo', (b) => b.length), 3);
+    await pagina.evaluate(() => { window.__analiseAnterior = window.SimuladorUI.analise(); });
+    await pagina.click('[data-modal="ex:neurologia"]');
+    await esperarAnaliseNova(pagina);
+    assert.equal(await pagina.evaluate(() => window.SimuladorUI.estado().empresa.nome), 'Clínica Sinapse Neurologia Ltda.');
+    assert.equal(await pagina.textContent('#marca-nome'), 'Clínica Santa Luzia', 'o exemplo não substitui a marca do usuário');
+    assert.equal(await pagina.evaluate(() => location.hash), '#resultado');
 
     // 14. Início rápido: 4 respostas geram um cadastro e uma análise
     await abrirMenu(pagina);
