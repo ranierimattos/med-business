@@ -38,7 +38,7 @@ test('interface: arquivo único offline, resultado = motor, dados com recálculo
 
     // 1. Primeira abertura: início rápido; o exemplo fictício já fica carregado por trás
     await pagina.waitForSelector('#inicio:not([hidden]) #q-receita');
-    await pagina.click('[data-acao="inicio-exemplo"]');
+    await pagina.click('[data-exemplo="clinica"]');
     assert.equal(await pagina.$eval('#inicio', (el) => el.hidden), true);
     await pagina.waitForFunction(() => window.SimuladorUI && window.SimuladorUI.analise(), null, { timeout: 30000 });
     await pagina.waitForSelector('#economia-projetada');
@@ -198,6 +198,16 @@ test('interface: arquivo único offline, resultado = motor, dados com recálculo
     await pagina.click('[data-modal="sim"]');
     assert.equal(await pagina.evaluate(() => window.SimuladorUI.estado().despesas.length), 0);
     assert.equal(await pagina.textContent('#marca-nome'), 'Clínica Santa Luzia', 'limpar dados mantém a marca');
+
+    // 13b. Menu Arquivo: escolher outro exemplo (neurologista em Ijuí)
+    await abrirMenu(pagina);
+    await pagina.click('#menu-arquivo button[data-acao="exemplo"]');
+    assert.equal(await pagina.$$eval('.opcao-exemplo', (b) => b.length), 3);
+    await pagina.evaluate(() => { window.__analiseAnterior = window.SimuladorUI.analise(); });
+    await pagina.click('[data-modal="ex:neurologia"]');
+    await esperarAnaliseNova(pagina);
+    assert.equal(await pagina.evaluate(() => window.SimuladorUI.estado().empresa.nome), 'Clínica Sinapse Neurologia Ltda.');
+    assert.equal(await pagina.evaluate(() => location.hash), '#resultado');
 
     // 14. Início rápido: 4 respostas geram um cadastro e uma análise
     await abrirMenu(pagina);

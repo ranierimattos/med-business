@@ -2035,7 +2035,7 @@
       '</div>' +
       (temDados ? '<p class="aviso atencao small">As respostas substituem os dados atuais. Exporte um backup pelo menu Arquivo antes, se precisar.</p>' : '') +
       '<div class="linha-acoes"><button type="button" class="btn btn-primario btn-grande" data-acao="inicio-ver">Ver análise</button><button type="button" class="btn btn-grande" data-acao="inicio-etapas">Preencher tudo em etapas</button></div>' +
-      '<button type="button" class="link" data-acao="inicio-exemplo">Abrir o exemplo</button>' +
+      '<div class="inicio-exemplos"><span class="small muted">Ou abra um exemplo:</span>' + window.DadosExemplo.lista.map(function (x) { return '<button type="button" class="link" data-exemplo="' + x.id + '" data-do-inicio title="' + esc(x.resumo) + '">' + esc(x.titulo) + '</button>'; }).join('') + '</div>' +
       '</form>' +
       '<aside class="inicio-previa" aria-label="Prévia" aria-live="polite" id="inicio-previa"></aside>';
     document.getElementById('inicio').hidden = false;
@@ -2198,11 +2198,6 @@
     'alternar-historico': function () { ui.historicoAberto = !ui.historicoAberto; renderizarArea(); },
     'inicio-rapido': abrirInicio,
     'inicio-fechar': fecharInicio,
-    'inicio-exemplo': function () {
-      if (!estado.meta.exemplo || estado.meta.editado) definirEstado(window.DadosExemplo.criar());
-      fecharInicio();
-      navegar('resultado', { sub: 'resumo' });
-    },
     'inicio-ver': function () {
       var r = respostasInicio();
       if (!r.receita) { notificar('Informe a receita média por mês.'); document.getElementById('q-receita').focus(); return; }
@@ -2216,8 +2211,11 @@
       navegar('dados', { etapa: 1 });
     },
     exemplo: function () {
-      abrirModal('Carregar o exemplo?', '<p>Os dados atuais serão substituídos pelo exemplo. Exporte um backup antes se quiser guardá-los.</p>', [['Cancelar', 'nao'], ['Carregar exemplo', 'sim', 'btn-primario']], function (r) {
-        if (r === 'sim') { definirEstado(window.DadosExemplo.criar()); salvar(true); notificar('Exemplo carregado.'); }
+      var opcoes = window.DadosExemplo.lista.map(function (x) {
+        return '<button type="button" class="opcao-exemplo" data-modal="ex:' + x.id + '"><strong>' + esc(x.titulo) + '</strong><span>' + esc(x.resumo) + '</span></button>';
+      }).join('');
+      abrirModal('Carregar um exemplo', '<p class="small">Os dados atuais serão substituídos pelo exemplo escolhido. Exporte um backup antes se quiser guardá-los.</p><div class="lista-exemplos">' + opcoes + '</div>', [['Cancelar', 'nao']], function (r) {
+        if (r.indexOf('ex:') === 0) abrirExemplo(r.slice(3), false);
       });
     },
     limpar: function () {
@@ -2300,6 +2298,15 @@
     'exportar-param': function () { baixar('parametros-legais.json', JSON.stringify(PL.anos, null, 2), 'application/json'); }
   };
 
+  // Carrega um exemplo. Do início rápido, mantém o exemplo já aberto se ainda não foi editado.
+  function abrirExemplo(id, doInicio) {
+    var mesmo = estado.meta.exemplo && !estado.meta.editado && (estado.meta.exemploId || 'clinica') === id;
+    if (!doInicio || !mesmo) definirEstado(window.DadosExemplo.criar(id));
+    if (doInicio) fecharInicio();
+    else { salvar(true); notificar('Exemplo carregado.'); }
+    navegar('resultado', { sub: 'resumo' });
+  }
+
   function aoClicar(ev) {
     if (ev.target.id === 'gaveta') { fecharGaveta(); return; }
     var menu = document.getElementById('menu-arquivo');
@@ -2313,6 +2320,7 @@
       if (location.hash === t.getAttribute('href') || area === ui.area) { ev.preventDefault(); navegar(area); }
       return;
     }
+    if (t.hasAttribute('data-exemplo')) { ev.preventDefault(); abrirExemplo(t.getAttribute('data-exemplo'), t.hasAttribute('data-do-inicio')); return; }
     var a = t.getAttribute('data-acao');
     if (a && ACOES[a]) { ev.preventDefault(); fecharMenus(); ACOES[a](); return; }
     var i;

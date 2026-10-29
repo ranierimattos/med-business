@@ -86,6 +86,12 @@ O pedido original foi um "prompt mestre" extenso, com 24 seções (cadastro, rec
 - Sem avisos de exemplo: o selo "Exemplo fictício" do topo e do relatório, o "dados fictícios" do cabeçalho das páginas e os rótulos do menu e do início rápido saíram; o exemplo se chama "Clínica Demonstração Ltda." e a sócia "Dra. Exemplo". `estado.meta.exemplo` continua existindo para a lógica interna. Os documentos do repositório (`docs/RELATORIO-EXEMPLO.md`) ainda dizem que os dados são inventados.
 - Folha 1 do PDF: com timbre, o gráfico de tributos ficou com 130 px e os próximos passos passam a 2 colunas quando há mais de 2; medido com nome e endereço longos, sobram pelo menos 44 px.
 
+**Exemplos novos (branch `claude/stoic-fermat-zazd6u`)**
+- `src/exemplo.js` agora tem três exemplos em `DadosExemplo.lista` (`id`, `titulo`, `resumo`); `DadosExemplo.criar(id)` cria o estado (sem `id`, a Clínica Demonstração) e grava `meta.exemploId`.
+  - `neurologia`: Clínica Sinapse Neurologia Ltda., Ijuí (RS), Dr. Henrique Valentini. Consulta particular R$ 600, só Unimed além do particular, eletroencefalograma, pareceres no hospital (Unimed) e SUS voluntário sem receita. Simples, pró-labore R$ 8.000 → economia de R$ 43.927,46 (Anexo V → III).
+  - `anestesia`: Morfeu Anestesiologia Ltda., Porto Alegre (RS), Dra. Helena Albuquerque. Lucro Presumido, sem funcionários, pró-labore R$ 8.000, vínculo CLT no teto do INSS → reduzir o pró-labore; economia de R$ 36.360,30.
+- Interface: **Arquivo › Carregar exemplo…** abre uma janela com os três exemplos; o Início rápido traz um link por exemplo (`data-exemplo`, tratado em `aoClicar` por `abrirExemplo`).
+
 **Resultado do exemplo fictício:** Simples, com pró-labore concentrado em jan–jun (R$ 12.871 a R$ 21.621) e mínimo depois. Junho a dezembro passam ao Anexo III, com economia projetada de **R$ 9.301,68/ano** (R$ 96.602,94 contra R$ 105.904,62).
 
 ## 4. Decisões tomadas e por quê
