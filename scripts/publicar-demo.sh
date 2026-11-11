@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
-# Publica a versão de teste no repositório público ranierimattos/simulador-medico-pj.
+# Publica a versão de teste no repositório público ranierimattos/simulador-tributario-medico-pj.
 # Gera o arquivo único e copia para um clone desse repositório o index.html,
 # o README e o workflow do GitHub Pages (de demo/); depois faz commit e push na main.
-#   scripts/publicar-demo.sh ../simulador-medico-pj
+#   scripts/publicar-demo.sh ../simulador-tributario-medico-pj
 set -euo pipefail
 raiz="$(cd "$(dirname "$0")/.." && pwd)"
-destino="${1:?Informe o caminho de um clone de ranierimattos/simulador-medico-pj}"
+destino="${1:?Informe o caminho de um clone de ranierimattos/simulador-tributario-medico-pj}"
 [ -d "$destino/.git" ] || { echo "Não é um clone git: $destino" >&2; exit 1; }
 
 node "$raiz/scripts/build.js"

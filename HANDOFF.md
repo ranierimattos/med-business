@@ -19,12 +19,12 @@ O pedido original foi um "prompt mestre" extenso, com 24 seções (cadastro, rec
 - Testes: `node --test tests/motor.test.js` → 41/41; `node --test tests/ui.test.js` → 1/1 (Playwright + Chromium; inclui as verificações de impressão e do PDF).
 - Links:
   - PR #1: https://github.com/ranierimattos/med-business/pull/1
-  - App publicado como página privada (variante de hospedagem, `dist/artefato/`): https://claude.ai/artifact/7k7yCKQSfmWBm7yKNfbW7d
-  - Canvas da nova interface (**aprovado**): https://claude.ai/artifact/9DN79EAVXX75UdHQKYpjEE
+  - App publicado como página privada (variante de hospedagem, `dist/artefato/`): página privada do claude.ai (link removido da versão pública)
+  - Canvas da nova interface (**aprovado**): página privada do claude.ai (link removido da versão pública)
   - PR #3: https://github.com/ranierimattos/med-business/pull/3
   - Issue #5 (personalização da marca): https://github.com/ranierimattos/med-business/issues/5
-  - Página de teste das branches (variante hospedada, separada da página da `main`): https://claude.ai/artifact/9MAuYJ4tMNVnrskWAgwjm2. Hoje mostra a branch `claude/stoic-fermat-zazd6u` (exemplos de neurologia e anestesia). Para atualizar, publicar de novo o `dist/artefato/` da branch com o título "Simulador PJ (teste)". A impressão não funciona em páginas hospedadas; o PDF se testa no arquivo offline.
-  - Versão de teste pública (GitHub Pages), publicada a partir de `main` com `scripts/publicar-demo.sh`: https://ranierimattos.github.io/simulador-medico-pj/ (repositório `ranierimattos/simulador-medico-pj`). O usuário pediu para **não** publicar a branch `report-design` lá.
+  - Página de teste das branches (variante hospedada, separada da página da `main`): página privada do claude.ai (link removido da versão pública). Hoje mostra a branch `claude/stoic-fermat-zazd6u` (exemplos de neurologia e anestesia). Para atualizar, publicar de novo o `dist/artefato/` da branch com o título "Simulador PJ (teste)". A impressão não funciona em páginas hospedadas; o PDF se testa no arquivo offline.
+  - Versão de teste pública (GitHub Pages), publicada a partir de `main` com `scripts/publicar-demo.sh`: https://ranierimattos.github.io/simulador-tributario-medico-pj/ (repositório `ranierimattos/simulador-tributario-medico-pj`). O usuário pediu para **não** publicar a branch `report-design` lá.
 
 ## 3. O que já foi feito
 
@@ -169,7 +169,7 @@ Canvas de design (lido com a ferramenta Artifact, ação `read`, no link da seç
 ## 7. Próximos passos
 
 1. Receber o parecer do usuário sobre a marca na página de teste. Aprovado: abrir PR de `ccr-9bf84731-bxdfac` para `main` com "Closes #5". Não aprovado: ajustar na mesma branch.
-2. Depois de mesclar em `main`, republicar a versão de teste pública (`scripts/publicar-demo.sh <clone do simulador-medico-pj>`) e a página hospedada da `main`, só quando o usuário pedir.
+2. Depois de mesclar em `main`, republicar a versão de teste pública (`scripts/publicar-demo.sh <clone do simulador-tributario-medico-pj>`) e a página hospedada da `main`, só quando o usuário pedir.
 3. Conferir os parâmetros legais em fonte oficial quando houver acesso (seção 6, item 1).
 4. Ideias não feitas: navegação por setas entre as sub-seções (hoje só Tab); barra fixa com a economia no celular enquanto se edita os Dados; recálculo em Web Worker se a análise ficar mais lenta.
 

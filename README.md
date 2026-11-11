@@ -1,5 +1,7 @@
 # Simulador Tributário Médico PJ
 
+**▶ Use agora no navegador:** https://ranierimattos.github.io/simulador-tributario-medico-pj/
+
 Aplicação web em **um único arquivo HTML** para planejamento financeiro e otimização tributária de médicos que atuam por pessoa jurídica no Brasil. Compara Simples Nacional (com a regra real do fator "r"), Lucro Presumido e Lucro Real e busca o plano de pró-labore e distribuição de lucros com o **menor custo tributário total em 12 meses**: tributos da empresa + INSS + IRPF + IRPFM + custos administrativos incrementais.
 
 - Arquivo pronto: [`dist/simulador-tributario-medico-pj.html`](dist/simulador-tributario-medico-pj.html) (abra no navegador; não precisa de servidor, instalação ou internet).
@@ -8,6 +10,19 @@ Aplicação web em **um único arquivo HTML** para planejamento financeiro e oti
 ![Gráfico de otimização: custo total anual por pró-labore mensal](docs/grafico-otimizacao.png)
 
 > Ferramenta de apoio à decisão. Não substitui o contador ou profissional tributário habilitado. Os parâmetros legais foram conferidos apenas em fontes secundárias (as páginas oficiais não estavam acessíveis no ambiente de desenvolvimento): confira antes de decidir.
+
+
+## Como foi construído
+
+Projeto de Ranieri de Mattos, inicialmente idealizado por Eduardo Lage (criou o prompt mestre no ChatGPT), desenvolvido com o **Claude Code** (Anthropic) em out/2026, num fluxo de engenharia assistida por IA que fica todo registrado neste repositório:
+
+- **Especificação primeiro:** um "prompt mestre" com 24 seções (cadastro, tributos, fator "r", otimização, relatório, testes, privacidade…) virou o escopo da primeira versão.
+- **Issues e pull requests:** cada etapa (simulador completo, redesenho da interface, relatório em PDF, personalização da marca, exemplos) foi feita numa branch do agente e entrou na `main` por PR, depois da minha revisão e aprovação na página de teste. Veja a aba [Pull requests](../../pulls?q=is%3Apr) e as mensagens de commit.
+- **Testes automatizados:** 41 testes do motor tributário e do otimizador (`node --test`) e um teste de interface com Playwright + Chromium, que confere também a impressão do relatório.
+- **Continuidade entre sessões:** o [`HANDOFF.md`](HANDOFF.md) é o documento de passagem que cada sessão do agente atualiza e a seguinte lê antes de continuar.
+- **Decisões de produto minhas:** escopo, regras de negócio, linguagem do relatório para quem não é contador e aprovação de cada entrega.
+
+Código publicado só para leitura: todos os direitos reservados (sem licença de uso).
 
 ---
 
@@ -65,10 +80,10 @@ node --test tests/motor.test.js  # testes do motor e do otimizador
 node --test tests/ui.test.js     # teste de interface (Playwright + Chromium)
 node scripts/relatorio-exemplo.js
 node scripts/capturas.js         # imagens e relatorio-exemplo.pdf de docs/ (Playwright)
-scripts/publicar-demo.sh ../simulador-medico-pj   # publica a versão de teste
+scripts/publicar-demo.sh ../simulador-tributario-medico-pj   # publica a versão de teste
 ```
 
-**Versão de teste pública.** O repositório público `ranierimattos/simulador-medico-pj` guarda só o arquivo único (`index.html`), um README e o workflow do GitHub Pages, que ficam em `demo/`. O código-fonte continua neste repositório. Para publicar ou atualizar: clone o repositório público ao lado deste e rode `scripts/publicar-demo.sh` com o caminho do clone; o script gera o arquivo, copia, faz commit e push na `main`, e o workflow publica em https://ranierimattos.github.io/simulador-medico-pj/. O Pages precisa estar ativado lá em Settings → Pages → Source: GitHub Actions.
+**Versão de teste pública.** O repositório público `ranierimattos/simulador-tributario-medico-pj` guarda só o arquivo único (`index.html`), um README e o workflow do GitHub Pages, que ficam em `demo/`. O código-fonte continua neste repositório. Para publicar ou atualizar: clone o repositório público ao lado deste e rode `scripts/publicar-demo.sh` com o caminho do clone; o script gera o arquivo, copia, faz commit e push na `main`, e o workflow publica em https://ranierimattos.github.io/simulador-tributario-medico-pj/. O Pages precisa estar ativado lá em Settings → Pages → Source: GitHub Actions.
 
 ---
 
